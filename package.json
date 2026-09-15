@@ -1,0 +1,29 @@
+{
+  "name": "raindrops-on-roses",
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./clamp": {
+      "types": "./dist/pure/clamp.d.ts",
+      "import": "./dist/pure/clamp.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc",
+    "test": "vitest run",
+    "test:w": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}
