@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clamp } from "../../src/pure/clamp.js";
+import { clamp } from "../../../src/pure/numbers/clamp.js";
 
 describe("clamp", () => {
   it("returns the value when it is within the range", () => {

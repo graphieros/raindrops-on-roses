@@ -1,1 +1,1 @@
-export { clamp } from "./pure/clamp.js";
+export { clamp } from "./pure/numbers/clamp.js";

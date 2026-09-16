@@ -12,8 +12,8 @@
       "import": "./dist/index.js"
     },
     "./clamp": {
-      "types": "./dist/pure/clamp.d.ts",
-      "import": "./dist/pure/clamp.js"
+      "types": "./dist/pure/numbers/clamp.d.ts",
+      "import": "./dist/pure/numbers/clamp.js"
     }
   },
   "scripts": {

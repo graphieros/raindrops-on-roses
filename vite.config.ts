@@ -6,7 +6,10 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(import.meta.dirname, "src/index.ts"),
-        "pure/clamp": resolve(import.meta.dirname, "src/pure/clamp.ts"),
+        "pure/numbers/clamp": resolve(
+          import.meta.dirname,
+          "src/pure/numbers/clamp.ts",
+        ),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
