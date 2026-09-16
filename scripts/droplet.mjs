@@ -18,7 +18,7 @@ const UMBRELLA_PACKAGE_JSON = resolve(UMBRELLA_DIR, "package.json");
 const UMBRELLA_INDEX = resolve(UMBRELLA_DIR, "src", "index.ts");
 
 const PACKAGE_SCOPE = "@aleclloydprobert";
-const INITIAL_PACKAGE_VERSION = "0.1.0";
+const INITIAL_PACKAGE_VERSION = "0.0.0";
 
 if (!FUNCTION_NAME) {
   console.error("Usage: npm run add:function -- <functionName>");

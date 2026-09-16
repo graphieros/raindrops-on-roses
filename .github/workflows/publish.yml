@@ -27,17 +27,5 @@ jobs:
       - run: npm run test
       - run: npm run build
 
-      - name: Publish
-        run: |
-          VERSION=$(node -p "require('./packages/raindrops-on-roses/package.json').version")
-          PRERELEASE=$(node -p "'$VERSION'.match(/-(.+?)(\.|$)/)?.[1] ?? ''")
-
-          if [ -n "$PRERELEASE" ]; then
-            TAG="$PRERELEASE"
-          else
-            TAG="latest"
-          fi
-
-          npm publish --workspace=@aleclloydprobert/clamp --tag "$TAG"
-          npm publish --workspace=@aleclloydprobert/numbers-from-seed --tag "$TAG"
-          npm publish --workspace=raindrops-on-roses --tag "$TAG"
+      - name: Publish unpublished packages
+        run: node scripts/publish.mjs

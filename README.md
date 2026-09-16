@@ -38,42 +38,156 @@ import { clamp } from "raindrops-on-roses";
 
 ### Adding a new function
 
-- clone the repo and `npm i`
-- use the `npm run add:function <function name>` script to create boilerplates for:
-  - the function
-  - its test
-- After creating the boilerplate, running `npm run test` should fail.
-- Write your function and make the tests pass
-- The function must be documented (JsDoc) and typed
-- Test coverage of your function must be 100%. Run `npm run coverage` to check
-- Reference the path of the function in the package.json, vite.config
-- export the function in index.ts
+- Clone the repository and install dependencies:
+
+  ```sh
+  npm install
+  ```
+
+- Use the generator to create a new function:
+
+  ```sh
+  npm run add:function -- <functionName>
+  ```
+
+- The generator will prompt you to:
+  - choose whether the function is `pure` or `composed`
+  - choose an existing category, such as `numbers`, or create a new one
+
+- Each function is created as its own npm workspace package. The generator creates:
+  - `src/index.ts` for the implementation
+  - `test/index.test.ts` for tests
+  - `package.json` for the individual npm package
+  - `tsconfig.json`
+  - `vite.config.ts`
+  - the corresponding dependency and export in the `raindrops-on-roses` umbrella package
+
+- New utility packages start at version `0.0.0`.
+
+- After generating a function, install again so npm registers the new workspace:
+
+  ```sh
+  npm install
+  ```
+
+- The generated tests are intentionally incomplete and should initially fail.
+
+- Implement and document the function, then replace the placeholder test with meaningful test cases.
+
+- Every function must:
+  - be fully typed
+  - have JSDoc documentation
+  - have 100% test coverage
+
+- Run the full test suite:
+
+  ```sh
+  npm run test
+  ```
+
+- Check coverage:
+
+  ```sh
+  npm run coverage
+  ```
+
+- Verify that every package builds successfully:
+
+  ```sh
+  npm run build
+  ```
+
+You should not need to manually add the function to the umbrella `package.json`, `index.ts`, or Vite configuration. The generator handles this automatically.
+
+Do not attempt to publish packages created as part of a contribution. Publishing and versioning are handled by the maintainers as part of the release process.
 
 ### File system
 
-There are 2 types of functions:
+There are two types of functions:
 
-- **pure**: independant unit, with no side effects
-- **combined**: a composition of already existing pure functions
+- **pure**: an independent unit with no side effects and no dependency on other `raindrops-on-roses` utilities
+- **composed**: a function built by composing existing utilities
 
-Using the boilerplate with `npm run add:function <function name>`, you will be prompted:
+Every utility is also an independent npm workspace package.
 
-- to select the pure or combined directory
-- to use an exisitng sub directory or create a new one
+For example, the `clamp` utility is stored as:
 
 ```text
-├─ src/
-│  ├─ pure/
-│  │  └─ numbers/
-│  │    └─ clamp.ts
-│  └─ index.ts
-├─ test/
-│  └─ pure/
-│     └─ numbers/
-│       └─ clamp.test.ts
+packages/
+├── pure/
+│   └── numbers/
+│       └── clamp/
+│           ├── src/
+│           │   └── index.ts
+│           ├── test/
+│           │   └── index.test.ts
+│           ├── package.json
+│           ├── tsconfig.json
+│           └── vite.config.ts
+│
+└── raindrops-on-roses/
+    ├── src/
+    │   └── index.ts
+    ├── package.json
+    ├── tsconfig.json
+    └── vite.config.ts
 ```
 
-The test directory must follow the same structure as the src directory.
+The directory hierarchy describes the kind of utility:
+
+```text
+packages/<type>/<category>/<utility>/
+```
+
+For example:
+
+```text
+packages/pure/numbers/clamp/
+packages/pure/numbers/numbers-from-seed/
+```
+
+The utility directory name uses kebab-case, while the exported JavaScript function keeps its normal camelCase name:
+
+```text
+numbersFromSeed
+↓
+packages/pure/numbers/numbers-from-seed/
+↓
+@aleclloydprobert/numbers-from-seed
+```
+
+Each utility package can be installed independently:
+
+```sh
+npm install @aleclloydprobert/clamp
+```
+
+and imported directly:
+
+```ts
+import { clamp } from "@aleclloydprobert/clamp";
+```
+
+The same utility is also re-exported by the umbrella package:
+
+```ts
+import { clamp } from "raindrops-on-roses";
+```
+
+The umbrella package depends on the individual utility packages and provides the complete library API while remaining tree-shakeable.
+
+When using:
+
+```sh
+npm run add:function -- <functionName>
+```
+
+you will be prompted to select:
+
+1. `pure` or `composed`
+2. an existing category or a new category
+
+The generator then creates the complete workspace package in the appropriate location.
 
 ### Show your love
 

@@ -1,6 +1,6 @@
 {
-  "name": "raindrops-on-roses",
-  "version": "0.0.2",
+  "name": "@aleclloydprobert/nice-number",
+  "version": "0.0.1",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -12,18 +12,16 @@
       "import": "./dist/index.js"
     }
   },
-  "dependencies": {
-    "@aleclloydprobert/clamp": "0.0.1",
-    "@aleclloydprobert/nice-number": "0.0.1",
-    "@aleclloydprobert/numbers-from-seed": "0.0.1"
-  },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "vite build && tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",
-    "directory": "packages/raindrops-on-roses"
+    "directory": "packages/pure/numbers/nice-number"
   }
 }

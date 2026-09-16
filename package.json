@@ -12,7 +12,8 @@
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run",
     "test:w": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "release": "node scripts/release.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.20.3",
