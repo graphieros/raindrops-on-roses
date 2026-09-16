@@ -46,6 +46,8 @@ import { clamp } from "raindrops-on-roses";
 - Write your function and make the tests pass
 - The function must be documented (JsDoc) and typed
 - Test coverage of your function must be 100%. Run `npm run coverage` to check
+- Reference the path of the function in the package.json, vite.config
+- export the function in index.ts
 
 ### File system
 

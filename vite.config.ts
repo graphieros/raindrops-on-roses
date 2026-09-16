@@ -10,6 +10,11 @@ export default defineConfig({
           import.meta.dirname,
           "src/pure/numbers/clamp.ts",
         ),
+        "pure/numbers/numbersFromSeed": resolve(
+          import.meta.dirname,
+          "src/pure/numbers/numbersFromSeed.ts",
+        ),
+        // Add new entries above this comment
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
