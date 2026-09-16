@@ -1,0 +1,27 @@
+{
+  "name": "@aleclloydprobert/clamp",
+  "version": "0.0.1",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && vite build && tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/graphieros/raindrops-on-roses.git",
+    "directory": "packages/pure/numbers/clamp"
+  }
+}

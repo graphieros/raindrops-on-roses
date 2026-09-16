@@ -1,33 +1,21 @@
 {
-  "name": "raindrops-on-roses",
-  "version": "0.0.0",
+  "name": "raindrops-on-roses-monorepo",
+  "private": true,
   "type": "module",
-  "files": [
-    "dist"
+  "workspaces": [
+    "packages/pure/*/*",
+    "packages/composed/*/*",
+    "packages/raindrops-on-roses"
   ],
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./clamp": {
-      "types": "./dist/pure/numbers/clamp.d.ts",
-      "import": "./dist/pure/numbers/clamp.js"
-    },
-    "./numbersFromSeed": {
-      "types": "./dist/pure/numbers/numbersFromSeed.d.ts",
-      "import": "./dist/pure/numbers/numbersFromSeed.js"
-    }
-  },
   "scripts": {
     "add:function": "node scripts/droplet.mjs",
-    "build": "vite build && tsc",
+    "build": "npm run build --workspaces --if-present",
     "test": "vitest run",
     "test:w": "vitest",
     "coverage": "vitest run --coverage"
   },
   "devDependencies": {
+    "@types/node": "^22.20.3",
     "@vitest/coverage-v8": "^5.0.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.0",

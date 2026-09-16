@@ -2,13 +2,13 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { numbersFromSeed } from "../../../src/pure/numbers/numbersFromSeed.js";
+import { numbersFromSeed } from "../src/index.js";
 
 describe("numbersFromSeed", () => {
   // NOTE: do not delete this test
   it("has valid documentation", () => {
     const source = readFileSync(
-      new URL("../../../src/pure/numbers/numbersFromSeed.ts", import.meta.url),
+      new URL("../src/index.ts", import.meta.url),
       "utf8",
     );
 

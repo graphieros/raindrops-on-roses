@@ -5,11 +5,8 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "declarationMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "sourceMap": true,
     "skipLibCheck": true
-  },
-  "include": ["src"]
+  }
 }
