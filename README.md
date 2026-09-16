@@ -7,6 +7,8 @@
 
 > A collection of delicately crafted TS functions from passionate OSS maintainers, 100% tested and made with love.
 
+<img width="1280" height="640" alt="image" src="https://github.com/user-attachments/assets/cba604e3-b767-41b7-bb3b-21b07fc9d0b3" />
+
 _When the dog bites\
 When the bee stings\
 When I'm feeling sad\
