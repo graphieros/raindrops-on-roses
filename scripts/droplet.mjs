@@ -425,6 +425,41 @@ export default createLibraryConfig(import.meta.dirname);
 `;
 }
 
+function createReadme() {
+  return `# ${SCOPED_PACKAGE_NAME}
+
+\`${FUNCTION_NAME}\` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
+
+## Install
+
+\`\`\`sh
+npm install ${SCOPED_PACKAGE_NAME}
+\`\`\`
+
+## Usage
+
+\`\`\`ts
+import { ${FUNCTION_NAME} } from "${SCOPED_PACKAGE_NAME}";
+\`\`\`
+
+You can also install the complete library:
+
+\`\`\`sh
+npm install raindrops-on-roses
+\`\`\`
+
+and import the same utility from the umbrella package:
+
+\`\`\`ts
+import { ${FUNCTION_NAME} } from "raindrops-on-roses";
+\`\`\`
+
+## Repository
+
+[graphieros/raindrops-on-roses](https://github.com/graphieros/raindrops-on-roses)
+`;
+}
+
 function updateUmbrellaPackage() {
   const umbrellaPackage = readJson(UMBRELLA_PACKAGE_JSON);
 
@@ -504,6 +539,7 @@ async function main() {
   const sourceFile = resolve(srcDirectory, "index.ts");
   const testFile = resolve(testDirectory, "index.test.ts");
   const packageJsonFile = resolve(packageDirectory, "package.json");
+  const readmeFile = resolve(packageDirectory, "README.md");
   const tsConfigFile = resolve(packageDirectory, "tsconfig.json");
   const viteConfigFile = resolve(packageDirectory, "vite.config.ts");
 
@@ -511,6 +547,8 @@ async function main() {
   writeTrackedFile(testFile, createTest());
 
   writeJson(packageJsonFile, createPackageJson(type, category));
+
+  writeTrackedFile(readmeFile, createReadme());
 
   writeJson(tsConfigFile, createTsConfig());
 
@@ -531,6 +569,7 @@ async function main() {
     `  packages/${type}/${category}/${PACKAGE_NAME}/test/index.test.ts`,
   );
   console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/package.json`);
+  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/README.md`);
   console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/tsconfig.json`);
   console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/vite.config.ts`);
   console.log("");

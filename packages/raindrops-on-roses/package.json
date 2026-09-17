@@ -1,6 +1,6 @@
 {
   "name": "raindrops-on-roses",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -13,9 +13,9 @@
     }
   },
   "dependencies": {
-    "@aleclloydprobert/clamp": "0.0.1",
-    "@aleclloydprobert/nice-number": "0.0.1",
-    "@aleclloydprobert/numbers-from-seed": "0.0.1"
+    "@aleclloydprobert/clamp": "0.0.2",
+    "@aleclloydprobert/nice-number": "0.0.2",
+    "@aleclloydprobert/numbers-from-seed": "0.0.2"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

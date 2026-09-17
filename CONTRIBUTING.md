@@ -101,7 +101,8 @@ packages/
 │           │   └── index.test.ts
 │           ├── package.json
 │           ├── tsconfig.json
-│           └── vite.config.ts
+│           ├── vite.config.ts
+│           └── README.md
 
 ```
 
@@ -128,7 +129,7 @@ The testing file is ready-made, and contains:
 
 ### Before submitting
 
-1. ensure your code is documented properly
+1. ensure your code is documented properly (update the README.md in the sub package)
 2. run linting: `npm run lint:fix`
 3. run tests: `npm run test`
 4. build: `npm run build`
