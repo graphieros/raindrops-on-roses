@@ -20,6 +20,7 @@
     "release": "node scripts/release.mjs"
   },
   "devDependencies": {
+    "@e18e/eslint-plugin": "^0.8.1",
     "@types/node": "^22.20.3",
     "@vitest/coverage-v8": "^5.0.1",
     "oxlint": "^1.83.0",
