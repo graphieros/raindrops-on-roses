@@ -1,6 +1,6 @@
 {
-  "name": "@aleclloydprobert/nice-number",
-  "version": "0.0.2",
+  "name": "@aleclloydprobert/number-numbers-from-seed",
+  "version": "0.0.1",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -22,6 +22,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",
-    "directory": "packages/pure/numbers/nice-number"
+    "directory": "packages/number-numbers-from-seed"
   }
 }

@@ -1,26 +1,19 @@
-import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { dirname, relative, resolve, sep } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const PACKAGES_DIR = resolve("packages");
-const UMBRELLA_DIR = resolve(PACKAGES_DIR, "raindrops-on-roses");
-const PACKAGE_LOCK = resolve("package-lock.json");
+import config from "../packages.config.mjs";
 
-const PACKAGE_TYPES = ["pure", "composed"];
+const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-const DEPENDENCY_SECTIONS = [
-  "dependencies",
-  "optionalDependencies",
-  "peerDependencies",
-];
+const MODULES_DIR = resolve(ROOT_DIR, config.modulesDirectory);
+
+const VERSIONS_FILE = resolve(ROOT_DIR, "packages.versions.json");
+
+const PACKAGE_LOCK_FILE = resolve(ROOT_DIR, "package-lock.json");
 
 const BUMP_RANK = {
   patch: 1,
@@ -28,7 +21,11 @@ const BUMP_RANK = {
   major: 3,
 };
 
-let rl = null;
+const RANK_BUMP = {
+  1: "patch",
+  2: "minor",
+  3: "major",
+};
 
 function readJson(file) {
   return JSON.parse(readFileSync(file, "utf8"));
@@ -47,93 +44,65 @@ function getSubdirectories(directory) {
     withFileTypes: true,
   })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
+    .map((entry) => resolve(directory, entry.name))
     .sort((a, b) => a.localeCompare(b));
 }
 
-function getWorkspacePackages() {
-  const packages = [];
+function isLeafModule(directory) {
+  return existsSync(resolve(directory, "src", "index.ts"));
+}
 
-  for (const type of PACKAGE_TYPES) {
-    const typeDirectory = resolve(PACKAGES_DIR, type);
+function modulePathFromDirectory(directory) {
+  return relative(MODULES_DIR, directory).split(sep).join("/");
+}
 
-    for (const category of getSubdirectories(typeDirectory)) {
-      const categoryDirectory = resolve(typeDirectory, category);
+function packageNameFromModulePath(modulePath) {
+  const separator = config.naming?.separator ?? "-";
 
-      for (const packageDirectoryName of getSubdirectories(categoryDirectory)) {
-        const directory = resolve(categoryDirectory, packageDirectoryName);
+  const slug = modulePath.split("/").join(separator);
 
-        const packageJsonFile = resolve(directory, "package.json");
+  return `${config.scope}/${slug}`;
+}
 
-        if (!existsSync(packageJsonFile)) {
-          continue;
-        }
+function discoverLeafModules(directory = MODULES_DIR) {
+  const modules = [];
 
-        const manifest = readJson(packageJsonFile);
+  for (const child of getSubdirectories(directory)) {
+    if (isLeafModule(child)) {
+      const modulePath = modulePathFromDirectory(child);
 
-        if (!manifest.name || !manifest.version) {
-          throw new Error(`Missing name or version in ${packageJsonFile}.`);
-        }
+      modules.push({
+        modulePath,
+        packageName: packageNameFromModulePath(modulePath),
+      });
 
-        packages.push({
-          name: manifest.name,
-          version: manifest.version,
-          type,
-          category,
-          directory,
-          packageJsonFile,
-          manifest,
-          isUmbrella: false,
-        });
-      }
-    }
-  }
-
-  const umbrellaPackageJson = resolve(UMBRELLA_DIR, "package.json");
-
-  if (!existsSync(umbrellaPackageJson)) {
-    throw new Error("Could not find packages/raindrops-on-roses/package.json.");
-  }
-
-  const umbrellaManifest = readJson(umbrellaPackageJson);
-
-  if (!umbrellaManifest.name || !umbrellaManifest.version) {
-    throw new Error("The umbrella package is missing its name or version.");
-  }
-
-  packages.push({
-    name: umbrellaManifest.name,
-    version: umbrellaManifest.version,
-    type: null,
-    category: null,
-    directory: UMBRELLA_DIR,
-    packageJsonFile: umbrellaPackageJson,
-    manifest: umbrellaManifest,
-    isUmbrella: true,
-  });
-
-  const names = new Set();
-
-  for (const workspacePackage of packages) {
-    if (names.has(workspacePackage.name)) {
-      throw new Error(
-        `Duplicate workspace package name: ${workspacePackage.name}`,
-      );
+      continue;
     }
 
-    names.add(workspacePackage.name);
+    modules.push(...discoverLeafModules(child));
   }
 
-  return packages;
+  return modules.sort((a, b) => a.modulePath.localeCompare(b.modulePath));
+}
+
+function getAncestorPackageNames(modulePath) {
+  const segments = modulePath.split("/");
+  const ancestors = [];
+
+  while (segments.length > 1) {
+    segments.pop();
+
+    ancestors.push(packageNameFromModulePath(segments.join("/")));
+  }
+
+  return ancestors;
 }
 
 function parseVersion(version) {
-  const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+  const match = version.match(/^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/);
 
   if (!match) {
-    throw new Error(
-      `Unsupported version "${version}". release.mjs currently expects stable x.y.z versions.`,
-    );
+    throw new Error(`Unsupported version: ${version}`);
   }
 
   return {
@@ -143,491 +112,305 @@ function parseVersion(version) {
   };
 }
 
-function bumpVersion(version, bumpType) {
+function bumpVersion(version, bump) {
   const parsed = parseVersion(version);
 
-  if (bumpType === "major") {
+  if (bump === "major") {
     return `${parsed.major + 1}.0.0`;
   }
 
-  if (bumpType === "minor") {
+  if (bump === "minor") {
     return `${parsed.major}.${parsed.minor + 1}.0`;
   }
 
   return `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
 }
 
-function getBumpTypeFromRank(rank) {
-  if (rank === BUMP_RANK.major) {
-    return "major";
+function ensureVersion(versions, packageName) {
+  if (!versions[packageName]) {
+    versions[packageName] = config.initialVersion ?? "0.0.0";
   }
-
-  if (rank === BUMP_RANK.minor) {
-    return "minor";
-  }
-
-  return "patch";
 }
 
-function getManagedDependencyPrefix(spec, version) {
-  const supportedPrefixes = [
-    "",
-    "^",
-    "~",
-    "workspace:",
-    "workspace:^",
-    "workspace:~",
-  ];
+function registerBump(bumps, packageName, bump) {
+  const current = bumps.get(packageName);
 
-  return (
-    supportedPrefixes.find((prefix) => spec === `${prefix}${version}`) ?? null
-  );
+  if (!current || BUMP_RANK[bump] > BUMP_RANK[current]) {
+    bumps.set(packageName, bump);
+  }
 }
 
-function dependencyTracksVersion(spec, version) {
-  return getManagedDependencyPrefix(spec, version) !== null;
+function runCommand(command, args) {
+  const result = spawnSync(command, args, {
+    cwd: ROOT_DIR,
+    stdio: "inherit",
+  });
+
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed.`);
+  }
 }
 
-function updateDependencySpec(spec, oldVersion, newVersion) {
-  const prefix = getManagedDependencyPrefix(spec, oldVersion);
-
-  if (prefix === null) {
-    return spec;
-  }
-
-  return `${prefix}${newVersion}`;
+function npmCommand() {
+  return process.platform === "win32" ? "npm.cmd" : "npm";
 }
 
-function cloneManifest(manifest) {
-  return JSON.parse(JSON.stringify(manifest));
-}
+async function selectModules(rl, modules, versions) {
+  console.log("");
+  console.log("Leaf modules:");
+  console.log("");
 
-function buildReleasePlan(packages, selectedBumps) {
-  const packageByName = new Map(
-    packages.map((workspacePackage) => [
-      workspacePackage.name,
-      workspacePackage,
-    ]),
-  );
+  for (const [index, module] of modules.entries()) {
+    const version =
+      versions[module.packageName] ?? config.initialVersion ?? "0.0.0";
 
-  const bumpRanks = new Map();
-  const reasons = new Map();
-
-  for (const [name, bumpType] of selectedBumps) {
-    bumpRanks.set(name, BUMP_RANK[bumpType]);
-    reasons.set(name, new Set(["selected"]));
+    console.log(`  ${index + 1}. ${module.modulePath} (${version})`);
   }
 
-  let changed = true;
+  console.log("");
+  console.log("Enter one or more numbers separated by commas.");
+  console.log('Enter "q" to cancel.');
 
-  while (changed) {
-    changed = false;
-
-    for (const workspacePackage of packages) {
-      for (const section of DEPENDENCY_SECTIONS) {
-        const dependencies = workspacePackage.manifest[section];
-
-        if (!dependencies) {
-          continue;
-        }
-
-        for (const [dependencyName, spec] of Object.entries(dependencies)) {
-          const dependencyPackage = packageByName.get(dependencyName);
-
-          const dependencyRank = bumpRanks.get(dependencyName);
-
-          if (!dependencyPackage || !dependencyRank) {
-            continue;
-          }
-
-          if (!dependencyTracksVersion(spec, dependencyPackage.version)) {
-            continue;
-          }
-
-          const currentRank = bumpRanks.get(workspacePackage.name) ?? 0;
-
-          if (dependencyRank > currentRank) {
-            bumpRanks.set(workspacePackage.name, dependencyRank);
-
-            changed = true;
-          }
-
-          if (!reasons.has(workspacePackage.name)) {
-            reasons.set(workspacePackage.name, new Set());
-          }
-
-          reasons
-            .get(workspacePackage.name)
-            .add(`depends on ${dependencyName}`);
-        }
-      }
-    }
-  }
-
-  const versionChanges = new Map();
-
-  for (const workspacePackage of packages) {
-    const rank = bumpRanks.get(workspacePackage.name);
-
-    if (!rank) {
-      continue;
-    }
-
-    const bumpType = getBumpTypeFromRank(rank);
-
-    const newVersion = bumpVersion(workspacePackage.version, bumpType);
-
-    versionChanges.set(workspacePackage.name, {
-      oldVersion: workspacePackage.version,
-      newVersion,
-      bumpType,
-      reasons: [...(reasons.get(workspacePackage.name) ?? [])],
-    });
-  }
-
-  const manifests = new Map();
-
-  for (const workspacePackage of packages) {
-    const nextManifest = cloneManifest(workspacePackage.manifest);
-
-    const versionChange = versionChanges.get(workspacePackage.name);
-
-    if (versionChange) {
-      nextManifest.version = versionChange.newVersion;
-    }
-
-    for (const section of DEPENDENCY_SECTIONS) {
-      const dependencies = nextManifest[section];
-
-      if (!dependencies) {
-        continue;
-      }
-
-      for (const [dependencyName, spec] of Object.entries(dependencies)) {
-        const dependencyPackage = packageByName.get(dependencyName);
-
-        const dependencyChange = versionChanges.get(dependencyName);
-
-        if (!dependencyPackage || !dependencyChange) {
-          continue;
-        }
-
-        dependencies[dependencyName] = updateDependencySpec(
-          spec,
-          dependencyPackage.version,
-          dependencyChange.newVersion,
-        );
-      }
-    }
-
-    manifests.set(workspacePackage.name, nextManifest);
-  }
-
-  return {
-    versionChanges,
-    manifests,
-  };
-}
-
-function printPackages(packages) {
-  console.log("\nPackages:");
-
-  for (const [index, workspacePackage] of packages.entries()) {
-    const suffix = workspacePackage.isUmbrella ? " (umbrella)" : "";
-
-    console.log(
-      `  ${index + 1}. ${workspacePackage.name}@${workspacePackage.version}${suffix}`,
-    );
-  }
-
-  console.log("  a. all utility packages");
-  console.log("  q. quit");
-}
-
-function parsePackageSelection(answer, packages) {
-  const normalized = answer.trim().toLowerCase();
-
-  if (["q", "quit", "exit"].includes(normalized)) {
-    return null;
-  }
-
-  if (normalized === "a" || normalized === "all") {
-    return packages.filter((workspacePackage) => !workspacePackage.isUmbrella);
-  }
-
-  const tokens = answer
-    .split(",")
-    .map((token) => token.trim())
-    .filter(Boolean);
-
-  if (tokens.length === 0) {
-    return [];
-  }
-
-  const selected = [];
-  const seen = new Set();
-
-  for (const token of tokens) {
-    const index = Number.parseInt(token, 10);
-
-    let workspacePackage = null;
-
-    if (Number.isInteger(index) && index >= 1 && index <= packages.length) {
-      workspacePackage = packages[index - 1];
-    } else {
-      workspacePackage = packages.find(
-        (candidate) => candidate.name.toLowerCase() === token.toLowerCase(),
-      );
-    }
-
-    if (!workspacePackage) {
-      throw new Error(`Unknown package selection: "${token}".`);
-    }
-
-    if (!seen.has(workspacePackage.name)) {
-      selected.push(workspacePackage);
-      seen.add(workspacePackage.name);
-    }
-  }
-
-  return selected;
-}
-
-async function choosePackages(packages) {
   while (true) {
-    printPackages(packages);
-
-    const answer = await rl.question(
-      "\nSelect packages that changed (comma-separated): ",
-    );
-
-    try {
-      const selected = parsePackageSelection(answer, packages);
-
-      if (selected === null) {
-        return null;
-      }
-
-      if (selected.length === 0) {
-        console.error("Select at least one package.");
-
-        continue;
-      }
-
-      return selected;
-    } catch (error) {
-      console.error(error instanceof Error ? error.message : String(error));
-    }
-  }
-}
-
-async function chooseBumpType(workspacePackage) {
-  while (true) {
-    const answer = (
-      await rl.question(
-        `Bump ${workspacePackage.name}@${workspacePackage.version} [patch/minor/major] (patch): `,
-      )
-    )
+    const answer = (await rl.question("\nModules to release: "))
       .trim()
       .toLowerCase();
 
-    if (!answer || answer === "p" || answer === "patch") {
-      return "patch";
+    if (answer === "q" || answer === "quit" || answer === "exit") {
+      return [];
     }
 
-    if (answer === "m" || answer === "minor") {
-      return "minor";
+    const indices = [
+      ...new Set(
+        answer.split(",").map((value) => Number.parseInt(value.trim(), 10)),
+      ),
+    ];
+
+    if (
+      indices.length === 0 ||
+      indices.some(
+        (index) =>
+          !Number.isInteger(index) || index < 1 || index > modules.length,
+      )
+    ) {
+      console.error("Invalid selection.");
+
+      continue;
     }
 
-    if (answer === "major") {
-      return "major";
-    }
+    return indices.map((index) => modules[index - 1]);
+  }
+}
 
-    if (["q", "quit", "exit"].includes(answer)) {
+async function chooseBump(rl, module, currentVersion) {
+  while (true) {
+    console.log("");
+    console.log(`${module.packageName}@${currentVersion}`);
+    console.log("");
+    console.log("  1. patch");
+    console.log("  2. minor");
+    console.log("  3. major");
+    console.log("  q. cancel");
+
+    const answer = (await rl.question("\nChoose bump [1/2/3/q]: "))
+      .trim()
+      .toLowerCase();
+
+    if (answer === "q" || answer === "quit" || answer === "exit") {
       return null;
     }
 
-    console.error('Enter "patch", "minor", "major", or "q".');
-  }
-}
-
-function printPlan(packages, plan) {
-  console.log("\nRelease plan:\n");
-
-  for (const workspacePackage of packages) {
-    const change = plan.versionChanges.get(workspacePackage.name);
-
-    if (!change) {
-      continue;
+    if (answer === "1" || answer === "patch") {
+      return "patch";
     }
 
-    const reason =
-      change.reasons.length > 0 ? ` — ${change.reasons.join(", ")}` : "";
-
-    console.log(
-      `  ${workspacePackage.name}: ${change.oldVersion} -> ${change.newVersion} (${change.bumpType})${reason}`,
-    );
-  }
-}
-
-function backupFiles(files) {
-  const backups = new Map();
-
-  for (const file of files) {
-    backups.set(file, existsSync(file) ? readFileSync(file, "utf8") : null);
-  }
-
-  return backups;
-}
-
-function restoreFiles(backups) {
-  for (const [file, contents] of backups) {
-    if (contents === null) {
-      if (existsSync(file)) {
-        rmSync(file, {
-          force: true,
-        });
-      }
-
-      continue;
+    if (answer === "2" || answer === "minor") {
+      return "minor";
     }
 
-    writeFileSync(file, contents);
+    if (answer === "3" || answer === "major") {
+      return "major";
+    }
+
+    console.error("Invalid bump.");
   }
-}
-
-function updatePackageLock() {
-  const result = spawnSync(
-    "npm",
-    ["install", "--package-lock-only", "--ignore-scripts"],
-    {
-      stdio: "inherit",
-    },
-  );
-
-  if (result.status !== 0) {
-    throw new Error("Failed to update package-lock.json.");
-  }
-}
-
-async function confirmRelease() {
-  const answer = (await rl.question("\nApply this release plan? [y/N]: "))
-    .trim()
-    .toLowerCase();
-
-  return answer === "y" || answer === "yes";
 }
 
 async function main() {
-  const packages = getWorkspacePackages();
+  if (!existsSync(VERSIONS_FILE)) {
+    throw new Error("Could not find packages.versions.json.");
+  }
 
-  const selectedPackages = await choosePackages(packages);
+  const modules = discoverLeafModules();
 
-  if (selectedPackages === null) {
+  if (modules.length === 0) {
+    throw new Error("No leaf modules found.");
+  }
+
+  const versions = readJson(VERSIONS_FILE);
+
+  for (const module of modules) {
+    ensureVersion(versions, module.packageName);
+
+    for (const ancestor of getAncestorPackageNames(module.modulePath)) {
+      ensureVersion(versions, ancestor);
+    }
+  }
+
+  ensureVersion(versions, config.umbrella.name);
+
+  const rl = createInterface({
+    input,
+    output,
+  });
+
+  const selected = await selectModules(rl, modules, versions);
+
+  if (selected.length === 0) {
+    rl.close();
     console.log("\nCancelled.");
     return;
   }
 
-  const selectedBumps = new Map();
+  const bumps = new Map();
 
-  console.log("");
+  for (const module of selected) {
+    const bump = await chooseBump(rl, module, versions[module.packageName]);
 
-  for (const workspacePackage of selectedPackages) {
-    const bumpType = await chooseBumpType(workspacePackage);
-
-    if (bumpType === null) {
+    if (!bump) {
+      rl.close();
       console.log("\nCancelled.");
       return;
     }
 
-    selectedBumps.set(workspacePackage.name, bumpType);
+    registerBump(bumps, module.packageName, bump);
+
+    for (const ancestor of getAncestorPackageNames(module.modulePath)) {
+      registerBump(bumps, ancestor, bump);
+    }
+
+    registerBump(bumps, config.umbrella.name, bump);
   }
 
-  const plan = buildReleasePlan(packages, selectedBumps);
+  rl.close();
 
-  printPlan(packages, plan);
+  console.log("");
+  console.log("Release plan:");
+  console.log("");
 
-  if (!(await confirmRelease())) {
+  const changes = [];
+
+  for (const [packageName, bump] of bumps) {
+    const oldVersion = versions[packageName];
+
+    const newVersion = bumpVersion(oldVersion, bump);
+
+    changes.push({
+      packageName,
+      bump,
+      oldVersion,
+      newVersion,
+    });
+  }
+
+  changes.sort((a, b) => a.packageName.localeCompare(b.packageName));
+
+  for (const change of changes) {
+    console.log(
+      `  ${change.packageName}: ${change.oldVersion} → ${change.newVersion} (${change.bump})`,
+    );
+  }
+
+  console.log("");
+
+  const confirmRl = createInterface({
+    input,
+    output,
+  });
+
+  const confirmation = (await confirmRl.question("Apply release? [y/N]: "))
+    .trim()
+    .toLowerCase();
+
+  confirmRl.close();
+
+  if (confirmation !== "y" && confirmation !== "yes") {
     console.log("\nCancelled.");
     return;
   }
 
-  const filesToBackup = [
-    ...packages.map((workspacePackage) => workspacePackage.packageJsonFile),
-    PACKAGE_LOCK,
-  ];
+  const originalVersions = readFileSync(VERSIONS_FILE, "utf8");
 
-  const backups = backupFiles(filesToBackup);
+  const originalLock = existsSync(PACKAGE_LOCK_FILE)
+    ? readFileSync(PACKAGE_LOCK_FILE, "utf8")
+    : null;
 
   try {
-    for (const workspacePackage of packages) {
-      const nextManifest = plan.manifests.get(workspacePackage.name);
-
-      if (!nextManifest) {
-        continue;
-      }
-
-      const currentContents = `${JSON.stringify(
-        workspacePackage.manifest,
-        null,
-        2,
-      )}\n`;
-
-      const nextContents = `${JSON.stringify(nextManifest, null, 2)}\n`;
-
-      if (currentContents === nextContents) {
-        continue;
-      }
-
-      writeJson(workspacePackage.packageJsonFile, nextManifest);
+    for (const change of changes) {
+      versions[change.packageName] = change.newVersion;
     }
 
-    updatePackageLock();
+    const sortedVersions = Object.fromEntries(
+      Object.entries(versions).sort(([a], [b]) => a.localeCompare(b)),
+    );
+
+    writeJson(VERSIONS_FILE, sortedVersions);
+
+    console.log("");
+    console.log("Reassembling packages...");
+
+    runCommand(npmCommand(), ["run", "assemble"]);
+
+    console.log("");
+    console.log("Updating package-lock.json...");
+
+    runCommand(npmCommand(), [
+      "install",
+      "--package-lock-only",
+      "--ignore-scripts",
+    ]);
   } catch (error) {
-    restoreFiles(backups);
+    writeFileSync(VERSIONS_FILE, originalVersions);
+
+    if (originalLock !== null) {
+      writeFileSync(PACKAGE_LOCK_FILE, originalLock);
+    }
+
+    console.error("");
+    console.error("Release failed. Version files were restored.");
+
     throw error;
   }
 
-  const umbrella = packages.find(
-    (workspacePackage) => workspacePackage.isUmbrella,
-  );
+  const umbrellaVersion = versions[config.umbrella.name];
 
-  const umbrellaChange = plan.versionChanges.get(umbrella.name);
-
-  console.log("\nRelease files updated successfully.");
-
-  console.log("\nNext:");
+  console.log("");
+  console.log("Release prepared successfully.");
+  console.log("");
+  console.log("Next:");
   console.log("  npm run test");
   console.log("  npm run build");
-  console.log("  git diff");
-
-  if (umbrellaChange) {
-    console.log("  git add .");
-    console.log(`  git commit -m "release: v${umbrellaChange.newVersion}"`);
-    console.log(`  git tag v${umbrellaChange.newVersion}`);
-    console.log("  git push");
-    console.log(`  git push origin v${umbrellaChange.newVersion}`);
-  } else {
-    console.log("");
-    console.log("The umbrella version did not change.");
-
-    console.log("Choose an appropriate release tag before publishing.");
-  }
+  console.log("");
+  console.log("Then commit and tag:");
+  console.log("");
+  console.log(`  git add .`);
+  console.log(`  git commit -m "Release ${umbrellaVersion}"`);
+  console.log(`  git tag v${umbrellaVersion}`);
+  console.log(`  git push && git push --tags`);
+  console.log("");
 }
-
-rl = createInterface({
-  input,
-  output,
-});
 
 try {
   await main();
 } catch (error) {
-  console.error("\nFailed to prepare release.");
+  console.error("");
+  console.error("Failed to prepare release.");
 
-  console.error(error instanceof Error ? error.message : error);
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else {
+    console.error(error);
+  }
 
-  process.exitCode = 1;
-} finally {
-  rl.close();
+  process.exit(1);
 }

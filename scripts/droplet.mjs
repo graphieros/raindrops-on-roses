@@ -1,24 +1,25 @@
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, relative, resolve, sep } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+import config from "../packages.config.mjs";
+
+const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+const MODULES_DIR = resolve(ROOT_DIR, config.modulesDirectory);
 
 const FUNCTION_NAME = process.argv[2];
 
-const PACKAGES_DIR = resolve("packages");
-const UMBRELLA_DIR = resolve(PACKAGES_DIR, "raindrops-on-roses");
-const UMBRELLA_PACKAGE_JSON = resolve(UMBRELLA_DIR, "package.json");
-const UMBRELLA_INDEX = resolve(UMBRELLA_DIR, "src", "index.ts");
-
-const PACKAGE_SCOPE = "@aleclloydprobert";
-const INITIAL_PACKAGE_VERSION = "0.0.0";
+const PACKAGE_SEPARATOR = config.naming?.separator ?? "-";
 
 if (!FUNCTION_NAME) {
   console.error("Usage: npm run add:function -- <functionName>");
@@ -30,13 +31,8 @@ if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(FUNCTION_NAME)) {
   process.exit(1);
 }
 
-if (!existsSync(UMBRELLA_PACKAGE_JSON)) {
-  console.error("Could not find packages/raindrops-on-roses/package.json.");
-  process.exit(1);
-}
-
-if (!existsSync(UMBRELLA_INDEX)) {
-  console.error("Could not find packages/raindrops-on-roses/src/index.ts.");
+if (!existsSync(MODULES_DIR)) {
+  console.error(`Could not find ${config.modulesDirectory}/.`);
   process.exit(1);
 }
 
@@ -50,36 +46,23 @@ function toKebabCase(value) {
     .toLowerCase();
 }
 
-const PACKAGE_NAME = toKebabCase(FUNCTION_NAME);
-const SCOPED_PACKAGE_NAME = `${PACKAGE_SCOPE}/${PACKAGE_NAME}`;
+const FUNCTION_SLUG = toKebabCase(FUNCTION_NAME);
 
-if (!PACKAGE_NAME || !/^[a-z0-9][a-z0-9-]*$/.test(PACKAGE_NAME)) {
+if (!FUNCTION_SLUG || !/^[a-z0-9][a-z0-9-]*$/.test(FUNCTION_SLUG)) {
   console.error(
-    `Could not derive a valid npm package name from "${FUNCTION_NAME}".`,
+    `Could not derive a valid module name from "${FUNCTION_NAME}".`,
   );
   process.exit(1);
 }
 
 let rl = null;
 let quitting = false;
+let moduleCreated = false;
 
 const createdFiles = [];
 const createdDirectories = [];
-const modifiedFiles = new Map();
-
-function trackExistingFile(file) {
-  if (modifiedFiles.has(file)) {
-    return;
-  }
-
-  modifiedFiles.set(file, readFileSync(file, "utf8"));
-}
 
 function cleanupCreatedResources() {
-  for (const [file, contents] of modifiedFiles) {
-    writeFileSync(file, contents);
-  }
-
   for (const file of [...createdFiles].reverse()) {
     if (existsSync(file)) {
       rmSync(file, {
@@ -105,7 +88,9 @@ function quit() {
 
   quitting = true;
 
-  cleanupCreatedResources();
+  if (!moduleCreated) {
+    cleanupCreatedResources();
+  }
 
   if (rl) {
     rl.close();
@@ -128,12 +113,43 @@ function getSubdirectories(directory) {
     withFileTypes: true,
   })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
+    .map((entry) => resolve(directory, entry.name))
     .sort((a, b) => a.localeCompare(b));
 }
 
-function validateDirectoryName(directoryName) {
-  return /^[a-zA-Z0-9_-]+$/.test(directoryName);
+function modulePathFromDirectory(directory) {
+  return relative(MODULES_DIR, directory).split(sep).join("/");
+}
+
+function isLeafModule(directory) {
+  return existsSync(resolve(directory, "src", "index.ts"));
+}
+
+function discoverModulePaths(directory = MODULES_DIR) {
+  const paths = [];
+
+  for (const child of getSubdirectories(directory)) {
+    if (isLeafModule(child)) {
+      continue;
+    }
+
+    paths.push(modulePathFromDirectory(child));
+
+    paths.push(...discoverModulePaths(child));
+  }
+
+  return paths.sort((a, b) => a.localeCompare(b));
+}
+
+function validateModuleSegment(segment) {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(segment);
+}
+
+function normalizeModulePath(value) {
+  return value
+    .trim()
+    .replaceAll("\\", "/")
+    .replace(/^\/+|\/+$/g, "");
 }
 
 function createTrackedDirectory(directory) {
@@ -141,134 +157,117 @@ function createTrackedDirectory(directory) {
     return;
   }
 
-  mkdirSync(directory, {
-    recursive: true,
-  });
+  mkdirSync(directory);
 
   createdDirectories.push(directory);
 }
 
+function createTrackedPath(segments) {
+  let directory = MODULES_DIR;
+
+  for (const segment of segments) {
+    directory = resolve(directory, segment);
+
+    createTrackedDirectory(directory);
+  }
+
+  return directory;
+}
+
 function writeTrackedFile(file, contents) {
   if (existsSync(file)) {
-    trackExistingFile(file);
-  } else {
-    createdFiles.push(file);
+    throw new Error(`Refusing to overwrite existing file: ${file}`);
   }
 
   writeFileSync(file, contents);
+
+  createdFiles.push(file);
 }
 
-function readJson(file) {
-  return JSON.parse(readFileSync(file, "utf8"));
-}
-
-function writeJson(file, value) {
-  writeTrackedFile(file, `${JSON.stringify(value, null, 2)}\n`);
-}
-
-process.on("SIGINT", quit);
-process.on("SIGTERM", quit);
-
-rl = createInterface({
-  input,
-  output,
-});
-
-rl.on("SIGINT", quit);
-
-async function chooseType() {
-  while (true) {
-    console.log("\nFunction type:");
-    console.log("  1. pure");
-    console.log("  2. composed");
-    console.log("  q. quit");
-
-    const answer = (await rl.question("\nChoose a type [1/2/q]: "))
-      .trim()
-      .toLowerCase();
-
-    if (isQuitCommand(answer)) {
-      quit();
-    }
-
-    if (answer === "1" || answer === "pure") {
-      return "pure";
-    }
-
-    if (answer === "2" || answer === "composed") {
-      return "composed";
-    }
-
-    console.error(
-      'Invalid choice. Enter "1", "2", "pure", "composed", or "q".',
-    );
-  }
-}
-
-async function createNewCategory(typeBaseDir) {
+async function createNewModulePath() {
   while (true) {
     const answer = (
-      await rl.question("\nNew category name (or q to quit): ")
+      await rl.question("\nNew module path, e.g. vector/poor (or q to quit): ")
     ).trim();
 
     if (isQuitCommand(answer)) {
       quit();
     }
 
-    if (!answer) {
-      console.error("Category name cannot be empty.");
+    const modulePath = normalizeModulePath(answer);
+
+    if (!modulePath) {
+      console.error("Module path cannot be empty.");
       continue;
     }
 
-    if (!validateDirectoryName(answer)) {
+    const segments = modulePath.split("/");
+
+    if (segments.some((segment) => !validateModuleSegment(segment))) {
       console.error(
-        "Category names may only contain letters, numbers, hyphens, and underscores.",
+        "Module paths must use lowercase letters, numbers, and hyphens, separated by /.",
       );
       continue;
     }
 
-    const categoryDirectory = resolve(typeBaseDir, answer);
+    let current = MODULES_DIR;
+    let invalidAncestor = null;
 
-    if (existsSync(categoryDirectory)) {
-      console.error(
-        `A "${answer}" category already exists. Select it from the existing categories instead.`,
-      );
-      continue;
-    }
+    for (const segment of segments) {
+      current = resolve(current, segment);
 
-    createTrackedDirectory(categoryDirectory);
+      if (existsSync(current) && isLeafModule(current)) {
+        invalidAncestor = modulePathFromDirectory(current);
 
-    console.log("");
-    console.log(`Created category: ${answer}`);
-
-    return answer;
-  }
-}
-
-async function chooseCategory(type) {
-  const typeBaseDir = resolve(PACKAGES_DIR, type);
-
-  if (!existsSync(typeBaseDir)) {
-    createTrackedDirectory(typeBaseDir);
-  }
-
-  while (true) {
-    const categories = getSubdirectories(typeBaseDir);
-
-    console.log(`\nAvailable ${type} categories:`);
-
-    if (categories.length === 0) {
-      console.log("  No categories found.");
-    } else {
-      for (const [index, category] of categories.entries()) {
-        console.log(`  ${index + 1}. ${category}`);
+        break;
       }
     }
 
-    console.log("  n. create a new category");
+    if (invalidAncestor) {
+      console.error(
+        `"${invalidAncestor}" is a leaf module and cannot contain child modules.`,
+      );
+      continue;
+    }
+
+    const target = resolve(MODULES_DIR, ...segments);
+
+    if (existsSync(target)) {
+      console.error(
+        `"${modulePath}" already exists. Select it from the existing module paths.`,
+      );
+      continue;
+    }
+
+    createTrackedPath(segments);
+
+    console.log("");
+    console.log(`Created module path: ${modulePath}`);
+
+    return modulePath;
+  }
+}
+
+async function chooseModulePath() {
+  while (true) {
+    const modulePaths = discoverModulePaths();
+
+    console.log("");
+    console.log("Available module paths:");
+    console.log("");
+
+    if (modulePaths.length === 0) {
+      console.log("  No module paths found.");
+    } else {
+      for (const [index, modulePath] of modulePaths.entries()) {
+        console.log(`  ${index + 1}. ${modulePath}`);
+      }
+    }
+
+    console.log("  n. create a new module path");
     console.log("  q. quit");
 
-    const answer = (await rl.question("\nChoose a category: "))
+    const answer = (await rl.question("\nChoose a module path: "))
       .trim()
       .toLowerCase();
 
@@ -277,7 +276,7 @@ async function chooseCategory(type) {
     }
 
     if (answer === "n" || answer === "new") {
-      return createNewCategory(typeBaseDir);
+      return createNewModulePath();
     }
 
     const selectedIndex = Number.parseInt(answer, 10);
@@ -285,13 +284,13 @@ async function chooseCategory(type) {
     if (
       Number.isInteger(selectedIndex) &&
       selectedIndex >= 1 &&
-      selectedIndex <= categories.length
+      selectedIndex <= modulePaths.length
     ) {
-      return categories[selectedIndex - 1];
+      return modulePaths[selectedIndex - 1];
     }
 
-    const selectedByName = categories.find(
-      (category) => category.toLowerCase() === answer,
+    const selectedByName = modulePaths.find(
+      (modulePath) => modulePath.toLowerCase() === answer,
     );
 
     if (selectedByName) {
@@ -299,9 +298,15 @@ async function chooseCategory(type) {
     }
 
     console.error(
-      'Invalid choice. Select a category number/name, "n" to create one, or "q" to quit.',
+      'Invalid choice. Select a module path, "n" to create one, or "q" to quit.',
     );
   }
+}
+
+function packageNameFromModulePath(modulePath) {
+  const slug = modulePath.split("/").join(PACKAGE_SEPARATOR);
+
+  return `${config.scope}/${slug}`;
 }
 
 function createSource() {
@@ -338,7 +343,11 @@ describe("${FUNCTION_NAME}", () => {
       );
     }
 
-    const beforeDeclaration = source.slice(0, declarationIndex);
+    const beforeDeclaration = source.slice(
+      0,
+      declarationIndex,
+    );
+
     const match = beforeDeclaration.match(
       /\\/\\*\\*([\\s\\S]*?)\\*\\/\\s*$/,
     );
@@ -377,81 +386,35 @@ describe("${FUNCTION_NAME}", () => {
 `;
 }
 
-function createPackageJson(type, category) {
-  return {
-    name: SCOPED_PACKAGE_NAME,
-    version: INITIAL_PACKAGE_VERSION,
-    type: "module",
-    sideEffects: false,
-    files: ["dist"],
-    exports: {
-      ".": {
-        types: "./dist/index.d.ts",
-        import: "./dist/index.js",
-      },
-    },
-    scripts: {
-      build: "vite build && tsc -p tsconfig.json",
-    },
-    publishConfig: {
-      access: "public",
-    },
-    license: "MIT",
-    repository: {
-      type: "git",
-      url: "git+https://github.com/graphieros/raindrops-on-roses.git",
-      directory: `packages/${type}/${category}/${PACKAGE_NAME}`,
-    },
-  };
-}
+function createReadme(packageName) {
+  return `# ${packageName}
 
-function createTsConfig() {
-  return {
-    extends: "../../../../tsconfig.base.json",
-    compilerOptions: {
-      rootDir: "./src",
-      outDir: "./dist",
-      emitDeclarationOnly: true,
-    },
-    include: ["src/**/*.ts"],
-    exclude: ["test", "dist"],
-  };
-}
-
-function createViteConfig() {
-  return `import { createLibraryConfig } from "../../../../config/vite.library.js";
-
-export default createLibraryConfig(import.meta.dirname);
-`;
-}
-
-function createReadme() {
-  return `# ${SCOPED_PACKAGE_NAME}
-
-\`${FUNCTION_NAME}\` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
+\`${FUNCTION_NAME}\` utility from [raindrops-on-roses](https://www.npmjs.com/package/${config.umbrella.name}).
 
 ## Install
 
 \`\`\`sh
-npm install ${SCOPED_PACKAGE_NAME}
+npm install ${packageName}
 \`\`\`
 
 ## Usage
 
 \`\`\`ts
-import { ${FUNCTION_NAME} } from "${SCOPED_PACKAGE_NAME}";
+import { ${FUNCTION_NAME} } from "${packageName}";
 \`\`\`
+
+## With the complete library
 
 You can also install the complete library:
 
 \`\`\`sh
-npm install raindrops-on-roses
+npm install ${config.umbrella.name}
 \`\`\`
 
-and import the same utility from the umbrella package:
+and import the utility from the umbrella package:
 
 \`\`\`ts
-import { ${FUNCTION_NAME} } from "raindrops-on-roses";
+import { ${FUNCTION_NAME} } from "${config.umbrella.name}";
 \`\`\`
 
 ## Repository
@@ -460,129 +423,96 @@ import { ${FUNCTION_NAME} } from "raindrops-on-roses";
 `;
 }
 
-function updateUmbrellaPackage() {
-  const umbrellaPackage = readJson(UMBRELLA_PACKAGE_JSON);
+function runAssemble() {
+  console.log("");
+  console.log("Assembling packages...");
+  console.log("");
 
-  umbrellaPackage.dependencies ??= {};
+  const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
-  if (umbrellaPackage.dependencies[SCOPED_PACKAGE_NAME]) {
+  const result = spawnSync(npmCommand, ["run", "assemble"], {
+    cwd: ROOT_DIR,
+    stdio: "inherit",
+  });
+
+  if (result.status !== 0) {
     throw new Error(
-      `${SCOPED_PACKAGE_NAME} is already registered in the umbrella package.`,
+      'The module was created, but package assembly failed. Fix the error and run "npm run assemble" again.',
     );
   }
-
-  umbrellaPackage.dependencies[SCOPED_PACKAGE_NAME] = INITIAL_PACKAGE_VERSION;
-
-  umbrellaPackage.dependencies = Object.fromEntries(
-    Object.entries(umbrellaPackage.dependencies).sort(([a], [b]) =>
-      a.localeCompare(b),
-    ),
-  );
-
-  writeJson(UMBRELLA_PACKAGE_JSON, umbrellaPackage);
 }
 
-function updateUmbrellaIndex() {
-  const currentIndex = readFileSync(UMBRELLA_INDEX, "utf8");
+process.on("SIGINT", quit);
+process.on("SIGTERM", quit);
 
-  const exportStatement = `export { ${FUNCTION_NAME} } from "${SCOPED_PACKAGE_NAME}";`;
+rl = createInterface({
+  input,
+  output,
+});
 
-  if (currentIndex.includes(exportStatement)) {
-    throw new Error(
-      `${FUNCTION_NAME} is already exported by the umbrella package.`,
-    );
-  }
-
-  const updatedIndex = currentIndex.trim()
-    ? `${currentIndex.trimEnd()}\n${exportStatement}\n`
-    : `${exportStatement}\n`;
-
-  writeTrackedFile(UMBRELLA_INDEX, updatedIndex);
-}
+rl.on("SIGINT", quit);
 
 async function main() {
-  const type = await chooseType();
-  const category = await chooseCategory(type);
+  const parentModulePath = await chooseModulePath();
+
+  const leafModulePath = `${parentModulePath}/${FUNCTION_SLUG}`;
+
+  const moduleDirectory = resolve(MODULES_DIR, ...leafModulePath.split("/"));
+
+  if (existsSync(moduleDirectory)) {
+    throw new Error(`Module already exists: modules/${leafModulePath}`);
+  }
+
+  const packageName = packageNameFromModulePath(leafModulePath);
+
+  const srcDirectory = resolve(moduleDirectory, "src");
+
+  const testDirectory = resolve(moduleDirectory, "test");
+
+  createTrackedDirectory(moduleDirectory);
+
+  createTrackedDirectory(srcDirectory);
+
+  createTrackedDirectory(testDirectory);
+
+  writeTrackedFile(resolve(srcDirectory, "index.ts"), createSource());
+
+  writeTrackedFile(resolve(testDirectory, "index.test.ts"), createTest());
+
+  writeTrackedFile(
+    resolve(moduleDirectory, "README.md"),
+    createReadme(packageName),
+  );
 
   rl.close();
   rl = null;
 
-  const packageDirectory = resolve(PACKAGES_DIR, type, category, PACKAGE_NAME);
-
-  if (existsSync(packageDirectory)) {
-    throw new Error(
-      `Package directory already exists: packages/${type}/${category}/${PACKAGE_NAME}`,
-    );
-  }
-
-  const umbrellaPackage = readJson(UMBRELLA_PACKAGE_JSON);
-
-  if (umbrellaPackage.dependencies?.[SCOPED_PACKAGE_NAME]) {
-    throw new Error(
-      `${SCOPED_PACKAGE_NAME} already exists in the umbrella dependencies.`,
-    );
-  }
-
-  const srcDirectory = resolve(packageDirectory, "src");
-  const testDirectory = resolve(packageDirectory, "test");
-
-  createTrackedDirectory(packageDirectory);
-
-  mkdirSync(srcDirectory, {
-    recursive: true,
-  });
-
-  mkdirSync(testDirectory, {
-    recursive: true,
-  });
-
-  const sourceFile = resolve(srcDirectory, "index.ts");
-  const testFile = resolve(testDirectory, "index.test.ts");
-  const packageJsonFile = resolve(packageDirectory, "package.json");
-  const readmeFile = resolve(packageDirectory, "README.md");
-  const tsConfigFile = resolve(packageDirectory, "tsconfig.json");
-  const viteConfigFile = resolve(packageDirectory, "vite.config.ts");
-
-  writeTrackedFile(sourceFile, createSource());
-  writeTrackedFile(testFile, createTest());
-
-  writeJson(packageJsonFile, createPackageJson(type, category));
-
-  writeTrackedFile(readmeFile, createReadme());
-
-  writeJson(tsConfigFile, createTsConfig());
-
-  writeTrackedFile(viteConfigFile, createViteConfig());
-
-  updateUmbrellaPackage();
-  updateUmbrellaIndex();
-
+  // The authored module is now valid source-of-truth.
+  // Do not roll it back if package assembly fails.
   createdFiles.length = 0;
   createdDirectories.length = 0;
-  modifiedFiles.clear();
+  moduleCreated = true;
 
   console.log("");
-  console.log(`Created ${SCOPED_PACKAGE_NAME}`);
+  console.log(`Created module: ${leafModulePath}`);
   console.log("");
-  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/src/index.ts`);
-  console.log(
-    `  packages/${type}/${category}/${PACKAGE_NAME}/test/index.test.ts`,
-  );
-  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/package.json`);
-  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/README.md`);
-  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/tsconfig.json`);
-  console.log(`  packages/${type}/${category}/${PACKAGE_NAME}/vite.config.ts`);
+
+  console.log(`  modules/${leafModulePath}/src/index.ts`);
+  console.log(`  modules/${leafModulePath}/test/index.test.ts`);
+  console.log(`  modules/${leafModulePath}/README.md`);
   console.log("");
-  console.log("Updated:");
-  console.log("  packages/raindrops-on-roses/package.json");
-  console.log("  packages/raindrops-on-roses/src/index.ts");
+
+  console.log(`Package: ${packageName}`);
+
+  runAssemble();
+
   console.log("");
   console.log("Next:");
   console.log("  npm install");
   console.log("  npm run test");
   console.log("  npm run build");
   console.log("");
-  console.log("The generated tests are expected to fail until:");
+  console.log("The generated test is expected to fail until:");
   console.log("  - the function is documented");
   console.log("  - real test cases replace the placeholder test");
 }
@@ -590,13 +520,21 @@ async function main() {
 try {
   await main();
 } catch (error) {
-  cleanupCreatedResources();
+  if (!moduleCreated) {
+    cleanupCreatedResources();
+  }
 
   if (rl) {
     rl.close();
   }
 
-  console.error("\nFailed to create droplet.");
+  console.error("");
+
+  if (moduleCreated) {
+    console.error("Module created, but a later step failed.");
+  } else {
+    console.error("Failed to create droplet.");
+  }
 
   if (error instanceof Error) {
     console.error(error.message);

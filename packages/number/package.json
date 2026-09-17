@@ -1,6 +1,6 @@
 {
-  "name": "@aleclloydprobert/clamp",
-  "version": "0.0.2",
+  "name": "@aleclloydprobert/number",
+  "version": "0.0.1",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "rm -rf dist && vite build && tsc -p tsconfig.json"
+    "build": "vite build && tsc -p tsconfig.json"
   },
   "publishConfig": {
     "access": "public"
@@ -22,6 +22,11 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",
-    "directory": "packages/pure/numbers/clamp"
+    "directory": "packages/number"
+  },
+  "dependencies": {
+    "@aleclloydprobert/number-clamp": "0.0.1",
+    "@aleclloydprobert/number-nice-number": "0.0.1",
+    "@aleclloydprobert/number-numbers-from-seed": "0.0.1"
   }
 }

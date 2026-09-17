@@ -22,16 +22,11 @@ The goal of `raindrops-on-roses` is to build a community-driven package of origi
 ## Table of contents
 
 - [Getting started](#getting-started)
-
-## Getting started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
 - [Development workflow](#development-workflow)
   - [Available commands](#available-commands)
+  - [Repository architecture](#repository-architecture)
   - [Adding a new function](#adding-a-new-function)
     - [Boilerplate](#boilerplate)
     - [Tests should fail at the start](#tests-should-fail-at-the-start)
@@ -44,20 +39,32 @@ The goal of `raindrops-on-roses` is to build a community-driven package of origi
 - [Questions](#questions)
 - [License](#license)
 
+## Getting started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/)
+- npm
+
 ### Setup
 
-1. fork and clone the repository
-2. install dependencies
+1. Fork and clone the repository.
+2. Install dependencies:
 
    ```bash
-   npm i
+   npm install
    ```
 
-3. run tests, all should pass
+3. Run the tests. All existing tests should pass:
 
    ```bash
    npm run test
+   ```
 
+4. Build the generated packages:
+
+   ```bash
+   npm run build
    ```
 
 ## Development workflow
@@ -65,84 +72,196 @@ The goal of `raindrops-on-roses` is to build a community-driven package of origi
 ### Available commands
 
 ```bash
-npm run add:function <function name> # Add a new function
-npm run test                         # Run all the tests
-npm run test:w                       # Run tests in watch mode
-npm run coverage                     # Run test coverage
+npm run add:function -- <functionName> # Add a new function
+npm run assemble                      # Regenerate npm workspaces from modules
+npm run test                          # Run all tests
+npm run test:w                        # Run tests in watch mode
+npm run coverage                      # Run test coverage
+npm run lint                          # Run linting
+npm run lint:fix                      # Run linting and apply fixes
+npm run typecheck                     # Run TypeScript checks
+npm run build                         # Build packages in dependency order
 ```
+
+### Repository architecture
+
+The repository separates **human-authored modules** from **generated npm packages**.
+
+`modules/` is the source of truth:
+
+```text
+modules/
+└── number/
+    ├── clamp/
+    │   ├── src/
+    │   │   └── index.ts
+    │   ├── test/
+    │   │   └── index.test.ts
+    │   └── README.md
+    ├── nice-number/
+    └── numbers-from-seed/
+```
+
+`packages/` contains generated npm workspaces:
+
+```text
+packages/
+├── number/
+├── number-clamp/
+├── number-nice-number/
+├── number-numbers-from-seed/
+└── raindrops-on-roses/
+```
+
+Do not manually edit generated files under `packages/`. They are recreated by:
+
+```bash
+npm run assemble
+```
+
+A module path determines its package name:
+
+```text
+number/clamp
+→ @aleclloydprobert/number-clamp
+
+vector/poor/distance
+→ @aleclloydprobert/vector-poor-distance
+```
+
+Parent paths automatically become aggregate packages:
+
+```text
+modules/
+└── vector/
+    └── poor/
+        ├── distance/
+        └── mid-point/
+```
+
+produces:
+
+```text
+@aleclloydprobert/vector
+@aleclloydprobert/vector-poor
+@aleclloydprobert/vector-poor-distance
+@aleclloydprobert/vector-poor-mid-point
+```
+
+The `raindrops-on-roses` package is the root aggregate and re-exports the top-level package groups.
 
 ### Adding a new function
 
 #### Boilerplate
 
-Create the boilerplate files and configuration using the `add:function` script
+Create the boilerplate using:
 
 ```bash
-npm run add:function myFunction
+npm run add:function -- myFunction
 ```
 
-This will prompt you to choose between `pure` and `composed`:
+The generator will prompt you to:
 
-- pure: single unit, without side effects
-- composed: a function usign existing pure units
+1. choose an existing module path, or
+2. create a new module path such as `vector/poor`
 
-Then you will be prompted to choose a category, or to create one.
-
-After choosing the category a sub-package directory will be generated, with the following structure:
+For example, creating `distance` under `vector/poor` creates:
 
 ```text
-packages/
-├── pure/
-│   └── numbers/
-│       └── my-function/
-│           ├── src/
-│           │   └── index.ts
-│           ├── test/
-│           │   └── index.test.ts
-│           ├── package.json
-│           ├── tsconfig.json
-│           ├── vite.config.ts
-│           └── README.md
-
+modules/
+└── vector/
+    └── poor/
+        └── distance/
+            ├── src/
+            │   └── index.ts
+            ├── test/
+            │   └── index.test.ts
+            └── README.md
 ```
+
+The generator then runs the package assembler so the corresponding npm packages and aggregate packages can be generated automatically.
+
+The module itself contains only files that contributors maintain directly:
+
+- `src/index.ts` — implementation
+- `test/index.test.ts` — tests
+- `README.md` — package documentation
+
+Package metadata, TypeScript configuration, Vite configuration, aggregate exports, and umbrella dependencies are generated elsewhere.
 
 #### Tests should fail at the start
 
-    ```bash
-    npm run test
-    ```
+Run:
 
-Should fail because:
+```bash
+npm run test
+```
 
-- The function requires a JsDoc documentation
-- The function requires a suite of tests to be implemented
+The newly generated test should initially fail because:
+
+- the function requires valid JSDoc documentation
+- real test cases still need to replace the placeholder test
 
 #### Testing
 
-The testing file is ready-made, and contains:
+The generated test file contains:
 
-- a first assertion that must remain, and checks if the function has a valid JsDoc
-- a second assertion, throwing, to be replaced with your suite of tests
+- a documentation test that must remain and verifies that the function has valid JSDoc
+- a placeholder failing test that must be replaced with meaningful test cases
 - test coverage must be 100% for a PR to be merged
+
+Tests run directly from `modules/`, not from generated copies under `packages/`.
 
 ## Submitting changes
 
 ### Before submitting
 
-1. ensure your code is documented properly (update the README.md in the sub package)
-2. run linting: `npm run lint:fix`
-3. run tests: `npm run test`
-4. build: `npm run build`
-5. run type checking: `npm run typecheck`
-6. run coverage and ensure it is 100%: `npm run coverage`
+1. Ensure your code is documented properly and update the module `README.md`.
+2. Run linting:
+
+   ```bash
+   npm run lint:fix
+   ```
+
+3. Run tests:
+
+   ```bash
+   npm run test
+   ```
+
+4. Run type checking:
+
+   ```bash
+   npm run typecheck
+   ```
+
+5. Check coverage and ensure it is 100%:
+
+   ```bash
+   npm run coverage
+   ```
+
+6. Regenerate packages:
+
+   ```bash
+   npm run assemble
+   ```
+
+7. Build all packages:
+
+   ```bash
+   npm run build
+   ```
+
+Do not manually version or publish packages as part of a contribution. Versioning, release propagation, npm bootstrapping, and publishing are handled by maintainers.
 
 ### Pull request process
 
-1. create a feature branch from `main`
-2. make your changes with clear, descriptive commits
-3. push your branch and open a pull request
-4. ensure CI checks pass (lint, type check, tests)
-5. request review from maintainers
+1. Create a feature branch from `main`.
+2. Make your changes with clear, descriptive commits.
+3. Push your branch and open a pull request.
+4. Ensure CI checks pass: lint, type checking, tests, coverage, and build.
+5. Request review from maintainers.
 
 ### Commit messages and PR titles
 
@@ -154,12 +273,12 @@ Format: `type(scope): description`
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
 
-**Scopes (optional):** `config`, `deps`, `docs`, `cli`, can also be a sub package (for example `clamp`)
+**Scopes (optional):** `config`, `deps`, `docs`, `cli`, or a module/package name such as `number-clamp`
 
 **Examples:**
 
 - `fix(perf): break loop when condition is met`
-- `feat: add myFunction utility`
+- `feat(number): add myFunction utility`
 - `fix(docs): typo`
 - `chore(deps): update vite to v8`
 

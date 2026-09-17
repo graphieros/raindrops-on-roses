@@ -28,4 +28,4 @@ jobs:
       - run: npm run build
 
       - name: Publish unpublished packages
-        run: node scripts/publish.mjs
+        run: npm run publish:packages
