@@ -1,3 +1,5 @@
+This workflow is intended for mantainers with publishign rights, and currently contains some manual operations.
+
 ## Steps when addding a new function
 
 0. build
