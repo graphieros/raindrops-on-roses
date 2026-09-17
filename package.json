@@ -13,11 +13,16 @@
     "test": "vitest run",
     "test:w": "vitest",
     "coverage": "vitest run --coverage",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "check": "npm run lint && npm run test && npm run build && npm run typecheck",
     "release": "node scripts/release.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.20.3",
     "@vitest/coverage-v8": "^5.0.1",
+    "oxlint": "^1.83.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.0",
     "vitest": "^5.0.1"
