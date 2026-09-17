@@ -1,6 +1,6 @@
 {
   "name": "raindrops-on-roses",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -18,7 +18,8 @@
     "@aleclloydprobert/numbers-from-seed": "0.0.1"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepack": "node ../../scripts/copy-readme.mjs"
   },
   "license": "MIT",
   "repository": {
