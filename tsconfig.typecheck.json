@@ -6,6 +6,6 @@
     "declarationMap": false,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["packages/**/*.ts", "config/**/*.ts"],
-  "exclude": ["**/dist/**", "**/node_modules/**"]
+  "include": ["modules/**/*.ts", "config/**/*.ts"],
+  "exclude": ["packages/**", "**/dist/**", "**/node_modules/**"]
 }
