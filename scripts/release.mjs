@@ -21,12 +21,6 @@ const BUMP_RANK = {
   major: 3,
 };
 
-const RANK_BUMP = {
-  1: "patch",
-  2: "minor",
-  3: "major",
-};
-
 function readJson(file) {
   return JSON.parse(readFileSync(file, "utf8"));
 }

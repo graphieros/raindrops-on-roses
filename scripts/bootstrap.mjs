@@ -189,42 +189,6 @@ function publishPackage(workspace) {
   }
 }
 
-function trustExists(packageName) {
-  const result = run(["trust", "list", packageName, "--json"]);
-
-  if (result.status !== 0) {
-    const text = [result.stdout, result.stderr].filter(Boolean).join("\n");
-
-    process.stderr.write(text);
-
-    throw new Error(
-      `Could not inspect Trusted Publisher configuration for ${packageName}.`,
-    );
-  }
-
-  const output = result.stdout.trim();
-
-  if (!output) {
-    return false;
-  }
-
-  try {
-    const value = JSON.parse(output);
-
-    if (Array.isArray(value)) {
-      return value.length > 0;
-    }
-
-    if (value && typeof value === "object") {
-      return Object.keys(value).length > 0;
-    }
-
-    return Boolean(value);
-  } catch {
-    return false;
-  }
-}
-
 function configureTrust(packageName) {
   const trusted = config.publish?.trustedPublisher;
 
@@ -270,7 +234,9 @@ function configureTrust(packageName) {
 }
 
 function sleep(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  return new Promise((resolvePromise) =>
+    setTimeout(resolvePromise, milliseconds),
+  );
 }
 
 async function getPlan(workspaces) {
@@ -283,31 +249,16 @@ async function getPlan(workspaces) {
   for (const workspace of workspaces) {
     const exists = packageExists(workspace.name);
 
-    let trusted = false;
-
-    if (exists && !DRY_RUN) {
-      trusted = trustExists(workspace.name);
-    }
-
     plan.push({
       workspace,
       exists,
-      trusted,
     });
 
-    let state;
-
-    if (!exists) {
-      state = "NEW — requires bootstrap";
-    } else if (DRY_RUN) {
-      state = "exists";
-    } else if (!trusted) {
-      state = "exists — trust missing";
-    } else {
-      state = "ready";
-    }
-
-    console.log(`  ${workspace.name}@${workspace.version} — ${state}`);
+    console.log(
+      `  ${workspace.name}@${workspace.version} — ${
+        exists ? "exists — skipped" : "NEW — requires bootstrap"
+      }`,
+    );
   }
 
   return plan;
@@ -332,13 +283,11 @@ async function main() {
 
   const plan = await getPlan(workspaces);
 
-  const required = plan.filter((item) => !item.exists || !item.trusted);
+  const required = plan.filter((item) => !item.exists);
 
   if (required.length === 0) {
     console.log("");
-    console.log(
-      "All packages already exist and have Trusted Publishing configured.",
-    );
+    console.log("No new npm package names require bootstrapping.");
 
     return;
   }
@@ -359,13 +308,9 @@ async function main() {
   console.log("");
 
   for (const item of required) {
-    if (!item.exists) {
-      console.log(`  publish ${item.workspace.name}@${item.workspace.version}`);
+    console.log(`  publish ${item.workspace.name}@${item.workspace.version}`);
 
-      console.log(`  configure trust for ${item.workspace.name}`);
-    } else if (!item.trusted) {
-      console.log(`  configure trust for ${item.workspace.name}`);
-    }
+    console.log(`  configure trust for ${item.workspace.name}`);
   }
 
   const rl = createInterface({
@@ -385,32 +330,16 @@ async function main() {
     return;
   }
 
-  for (const item of plan) {
+  for (const item of required) {
     const { workspace } = item;
 
-    let exists = item.exists;
+    publishPackage(workspace);
 
-    let trusted = item.trusted;
+    configureTrust(workspace.name);
 
-    if (!exists) {
-      publishPackage(workspace);
+    await sleep(2000);
 
-      exists = true;
-    }
-
-    if (exists && !trusted) {
-      configureTrust(workspace.name);
-
-      trusted = true;
-
-      // npm recommends spacing bulk trust
-      // configuration requests.
-      await sleep(2000);
-    }
-
-    if (exists && trusted) {
-      console.log(`Ready: ${workspace.name}`);
-    }
+    console.log(`Ready: ${workspace.name}`);
   }
 
   console.log("");

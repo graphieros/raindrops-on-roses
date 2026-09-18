@@ -17,6 +17,7 @@ import { /* utilities */ } from "@aleclloydprobert/number";
 ## Included packages
 
 - `@aleclloydprobert/number-clamp`
+- `@aleclloydprobert/number-lttb`
 - `@aleclloydprobert/number-nice-number`
 - `@aleclloydprobert/number-numbers-from-seed`
 
