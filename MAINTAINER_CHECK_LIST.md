@@ -203,7 +203,7 @@ Then configure Trusted Publishing for each new package:
 
 ```bash
 npm trust github @aleclloydprobert/vector-poor-distance \
-  --file publish.yaml \
+  --file publish.yml \
   --repo graphieros/raindrops-on-roses \
   --env npm \
   --allow-publish

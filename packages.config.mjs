@@ -21,7 +21,7 @@ export default {
     trustedPublisher: {
       provider: "github",
       repository: "graphieros/raindrops-on-roses",
-      workflow: "publish.yaml",
+      workflow: "publish.yml",
       environment: "npm",
     },
   },
