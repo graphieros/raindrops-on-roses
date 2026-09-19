@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import petals from '../../assets/images/petals_in_the_wind.png'
+import BaseThemeToggle from './BaseThemeToggle.vue'
 
 defineProps<{
   menuOpen?: boolean
@@ -17,7 +18,7 @@ const emit = defineEmits<{
         <slot />
       </div>
 
-      <img :src="petals" class="hidden md:block sm:w-36 fixed top-0 -right-2" />
+      <img :src="petals" class="hidden md:block sm:w-36 fixed top-0 right-32 pointer-events-none" />
 
       <button
         type="button"
@@ -44,6 +45,7 @@ const emit = defineEmits<{
           />
         </svg>
       </button>
+      <BaseThemeToggle class="z-1 ml-2" />
     </div>
   </header>
 </template>
