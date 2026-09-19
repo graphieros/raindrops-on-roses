@@ -1,6 +1,6 @@
 {
   "name": "raindrops-on-roses",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -16,12 +16,13 @@
     "build": "vite build && tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@raindrops-on-roses/number": "0.0.2"
+    "@raindrops-on-roses/number": "0.0.3"
   },
   "publishConfig": {
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://raindrops-on-roses.graphieros.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",

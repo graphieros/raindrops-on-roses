@@ -1,6 +1,6 @@
 {
   "name": "@raindrops-on-roses/number-lttb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -19,6 +19,7 @@
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://raindrops-on-roses.graphieros.com/number/lttb",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",

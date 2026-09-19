@@ -1,6 +1,6 @@
 {
   "name": "@raindrops-on-roses/number",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -19,15 +19,16 @@
     "access": "public"
   },
   "license": "MIT",
+  "homepage": "https://raindrops-on-roses.graphieros.com/number",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphieros/raindrops-on-roses.git",
     "directory": "packages/number"
   },
   "dependencies": {
-    "@raindrops-on-roses/number-clamp": "0.0.1",
-    "@raindrops-on-roses/number-lttb": "0.0.1",
-    "@raindrops-on-roses/number-nice-number": "0.0.1",
-    "@raindrops-on-roses/number-numbers-from-seed": "0.0.1"
+    "@raindrops-on-roses/number-clamp": "0.0.2",
+    "@raindrops-on-roses/number-lttb": "0.0.2",
+    "@raindrops-on-roses/number-nice-number": "0.0.2",
+    "@raindrops-on-roses/number-numbers-from-seed": "0.0.2"
   }
 }

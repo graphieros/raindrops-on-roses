@@ -6,6 +6,8 @@ export default {
 
   initialVersion: "0.0.0",
 
+  website: "https://raindrops-on-roses.graphieros.com",
+
   umbrella: {
     name: "raindrops-on-roses",
     readme: "README.md",

@@ -166,6 +166,7 @@ function createBasePackageJson(module, version) {
       access: "public",
     },
     license: "MIT",
+    homepage: homepageFromModulePath(module.modulePath),
     repository: {
       type: "git",
       url: "git+https://github.com/graphieros/raindrops-on-roses.git",
@@ -368,6 +369,10 @@ function createUmbrellaSource(children) {
     .join("\n")}\n`;
 }
 
+function homepageFromModulePath(modulePath) {
+  return `${config.website}/${modulePath}`;
+}
+
 function generateUmbrellaPackage(version, aggregates, versions) {
   const packageName = config.umbrella.name;
   const packageDirectory = resolve(PACKAGES_DIR, packageName);
@@ -421,6 +426,7 @@ function generateUmbrellaPackage(version, aggregates, versions) {
       access: "public",
     },
     license: "MIT",
+    homepage: config.website,
     repository: {
       type: "git",
       url: "git+https://github.com/graphieros/raindrops-on-roses.git",
