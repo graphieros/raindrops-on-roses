@@ -95,9 +95,9 @@ modules/vector/poor/distance
 creates or participates in:
 
 ```text
-@aleclloydprobert/vector-poor-distance
-@aleclloydprobert/vector-poor
-@aleclloydprobert/vector
+@raindrops-on-roses/vector-poor-distance
+@raindrops-on-roses/vector-poor
+@raindrops-on-roses/vector
 raindrops-on-roses
 ```
 
@@ -136,9 +136,9 @@ Example:
 ```text
 number/clamp
     ↓
-@aleclloydprobert/number-clamp
+@raindrops-on-roses/number-clamp
     ↓
-@aleclloydprobert/number
+@raindrops-on-roses/number
     ↓
 raindrops-on-roses
 ```
@@ -194,15 +194,15 @@ Publish new packages in dependency order.
 Example:
 
 ```bash
-npm publish --workspace=@aleclloydprobert/vector-poor-distance --access public
-npm publish --workspace=@aleclloydprobert/vector-poor --access public
-npm publish --workspace=@aleclloydprobert/vector --access public
+npm publish --workspace=@raindrops-on-roses/vector-poor-distance --access public
+npm publish --workspace=@raindrops-on-roses/vector-poor --access public
+npm publish --workspace=@raindrops-on-roses/vector --access public
 ```
 
 Then configure Trusted Publishing for each new package:
 
 ```bash
-npm trust github @aleclloydprobert/vector-poor-distance \
+npm trust github @raindrops-on-roses/vector-poor-distance \
   --file publish.yml \
   --repo graphieros/raindrops-on-roses \
   --env npm \
@@ -328,14 +328,14 @@ npm view raindrops-on-roses dependencies
 Check the new leaf package:
 
 ```bash
-npm view @aleclloydprobert/<package-name> version
+npm view @raindrops-on-roses/<package-name> version
 ```
 
 For a new aggregate package:
 
 ```bash
-npm view @aleclloydprobert/<aggregate-name> version
-npm view @aleclloydprobert/<aggregate-name> dependencies
+npm view @raindrops-on-roses/<aggregate-name> version
+npm view @raindrops-on-roses/<aggregate-name> dependencies
 ```
 
 Confirm that:

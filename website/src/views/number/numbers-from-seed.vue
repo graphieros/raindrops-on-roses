@@ -46,8 +46,8 @@ const code = `function numbersFromSeed({
 
 const imports = [
   'raindrops-on-roses',
-  '@aleclloydprobert/numbers-from-seed',
-  '@aleclloydprobert/number-numbers-from-seed',
+  '@raindrops-on-roses/numbers-from-seed',
+  '@raindrops-on-roses/number-numbers-from-seed',
 ]
 
 const example = `numbersFromSeed({

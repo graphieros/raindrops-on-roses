@@ -123,10 +123,10 @@ A module path determines its package name:
 
 ```text
 number/clamp
-→ @aleclloydprobert/number-clamp
+→ @raindrops-on-roses/number-clamp
 
 vector/poor/distance
-→ @aleclloydprobert/vector-poor-distance
+→ @raindrops-on-roses/vector-poor-distance
 ```
 
 Parent paths automatically become aggregate packages:
@@ -142,10 +142,10 @@ modules/
 produces:
 
 ```text
-@aleclloydprobert/vector
-@aleclloydprobert/vector-poor
-@aleclloydprobert/vector-poor-distance
-@aleclloydprobert/vector-poor-mid-point
+@raindrops-on-roses/vector
+@raindrops-on-roses/vector-poor
+@raindrops-on-roses/vector-poor-distance
+@raindrops-on-roses/vector-poor-mid-point
 ```
 
 The `raindrops-on-roses` package is the root aggregate and re-exports the top-level package groups.

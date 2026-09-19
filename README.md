@@ -26,13 +26,13 @@ npm install raindrops-on-roses
 Or install only the package you need:
 
 ```sh
-npm install @aleclloydprobert/number-clamp
+npm install @raindrops-on-roses/number-clamp
 ```
 
 You can also install an aggregate package:
 
 ```sh
-npm install @aleclloydprobert/number
+npm install @raindrops-on-roses/number
 ```
 
 ## Usage
@@ -46,13 +46,13 @@ import { clamp } from "raindrops-on-roses";
 From an aggregate package:
 
 ```ts
-import { clamp } from "@aleclloydprobert/number";
+import { clamp } from "@raindrops-on-roses/number";
 ```
 
 From the smallest individual package:
 
 ```ts
-import { clamp } from "@aleclloydprobert/number-clamp";
+import { clamp } from "@raindrops-on-roses/number-clamp";
 ```
 
 ## Package architecture
@@ -72,10 +72,10 @@ modules/
 This produces:
 
 ```text
-@aleclloydprobert/number
-@aleclloydprobert/number-clamp
-@aleclloydprobert/number-nice-number
-@aleclloydprobert/number-numbers-from-seed
+@raindrops-on-roses/number
+@raindrops-on-roses/number-clamp
+@raindrops-on-roses/number-nice-number
+@raindrops-on-roses/number-numbers-from-seed
 raindrops-on-roses
 ```
 
@@ -83,16 +83,16 @@ Package names are derived from the module path:
 
 ```text
 number
-→ @aleclloydprobert/number
+→ @raindrops-on-roses/number
 
 number/clamp
-→ @aleclloydprobert/number-clamp
+→ @raindrops-on-roses/number-clamp
 
 vector/poor
-→ @aleclloydprobert/vector-poor
+→ @raindrops-on-roses/vector-poor
 
 vector/poor/distance
-→ @aleclloydprobert/vector-poor-distance
+→ @raindrops-on-roses/vector-poor-distance
 ```
 
 Parent module paths automatically become aggregate packages.
@@ -110,22 +110,22 @@ modules/
 generates:
 
 ```text
-@aleclloydprobert/vector
-@aleclloydprobert/vector-poor
-@aleclloydprobert/vector-poor-distance
-@aleclloydprobert/vector-poor-mid-point
+@raindrops-on-roses/vector
+@raindrops-on-roses/vector-poor
+@raindrops-on-roses/vector-poor-distance
+@raindrops-on-roses/vector-poor-mid-point
 ```
 
 with a dependency graph like:
 
 ```text
-@aleclloydprobert/vector
+@raindrops-on-roses/vector
         │
         ▼
-@aleclloydprobert/vector-poor
+@raindrops-on-roses/vector-poor
         │
-        ├── @aleclloydprobert/vector-poor-distance
-        └── @aleclloydprobert/vector-poor-mid-point
+        ├── @raindrops-on-roses/vector-poor-distance
+        └── @raindrops-on-roses/vector-poor-mid-point
 ```
 
 The `raindrops-on-roses` package is the root aggregate and depends only on top-level aggregate packages.
@@ -274,7 +274,7 @@ numbersFromSeed
 ↓
 modules/number/numbers-from-seed/
 ↓
-@aleclloydprobert/number-numbers-from-seed
+@raindrops-on-roses/number-numbers-from-seed
 ```
 
 ### Generated packages
@@ -303,15 +303,15 @@ Aggregate package sources are generated as re-exports of their direct child pack
 For example:
 
 ```ts
-export * from "@aleclloydprobert/number-clamp";
-export * from "@aleclloydprobert/number-nice-number";
-export * from "@aleclloydprobert/number-numbers-from-seed";
+export * from "@raindrops-on-roses/number-clamp";
+export * from "@raindrops-on-roses/number-nice-number";
+export * from "@raindrops-on-roses/number-numbers-from-seed";
 ```
 
 The umbrella package is generated from top-level aggregates, for example:
 
 ```ts
-export * from "@aleclloydprobert/number";
+export * from "@raindrops-on-roses/number";
 ```
 
 ### Build order
@@ -327,9 +327,9 @@ Leaf packages build first, then aggregates, then the umbrella package.
 For example:
 
 ```text
-@aleclloydprobert/number-clamp
+@raindrops-on-roses/number-clamp
         ↓
-@aleclloydprobert/number
+@raindrops-on-roses/number
         ↓
 raindrops-on-roses
 ```
@@ -359,9 +359,9 @@ For example:
 ```text
 number/clamp changes
         ↓
-@aleclloydprobert/number-clamp
+@raindrops-on-roses/number-clamp
         ↓
-@aleclloydprobert/number
+@raindrops-on-roses/number
         ↓
 raindrops-on-roses
 ```
@@ -405,21 +405,21 @@ Consumers can choose how much of the library they want to install.
 Individual utility:
 
 ```sh
-npm install @aleclloydprobert/number-clamp
+npm install @raindrops-on-roses/number-clamp
 ```
 
 ```ts
-import { clamp } from "@aleclloydprobert/number-clamp";
+import { clamp } from "@raindrops-on-roses/number-clamp";
 ```
 
 Aggregate:
 
 ```sh
-npm install @aleclloydprobert/number
+npm install @raindrops-on-roses/number
 ```
 
 ```ts
-import { clamp, niceNumber, numbersFromSeed } from "@aleclloydprobert/number";
+import { clamp, niceNumber, numbersFromSeed } from "@raindrops-on-roses/number";
 ```
 
 Complete library:

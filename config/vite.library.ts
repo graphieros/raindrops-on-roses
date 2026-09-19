@@ -11,7 +11,7 @@ export function createLibraryConfig(directory: string) {
         fileName: "index",
       },
       rollupOptions: {
-        external: (id) => id.startsWith("@aleclloydprobert/"),
+        external: (id) => id.startsWith("@raindropsonroses/"),
       },
       sourcemap: true,
       emptyOutDir: false,

@@ -1,8 +1,8 @@
 {
-  "@aleclloydprobert/number": "0.0.2",
-  "@aleclloydprobert/number-clamp": "0.0.1",
-  "@aleclloydprobert/number-lttb": "0.0.1",
-  "@aleclloydprobert/number-nice-number": "0.0.1",
-  "@aleclloydprobert/number-numbers-from-seed": "0.0.1",
-  "raindrops-on-roses": "0.0.6"
+  "@raindrops-on-roses/number": "0.0.2",
+  "@raindrops-on-roses/number-clamp": "0.0.1",
+  "@raindrops-on-roses/number-lttb": "0.0.1",
+  "@raindrops-on-roses/number-nice-number": "0.0.1",
+  "@raindrops-on-roses/number-numbers-from-seed": "0.0.1",
+  "raindrops-on-roses": "0.0.7"
 }

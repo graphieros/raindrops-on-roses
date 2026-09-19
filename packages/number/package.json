@@ -1,5 +1,5 @@
 {
-  "name": "@aleclloydprobert/number",
+  "name": "@raindrops-on-roses/number",
   "version": "0.0.2",
   "type": "module",
   "sideEffects": false,
@@ -25,9 +25,9 @@
     "directory": "packages/number"
   },
   "dependencies": {
-    "@aleclloydprobert/number-clamp": "0.0.1",
-    "@aleclloydprobert/number-lttb": "0.0.1",
-    "@aleclloydprobert/number-nice-number": "0.0.1",
-    "@aleclloydprobert/number-numbers-from-seed": "0.0.1"
+    "@raindrops-on-roses/number-clamp": "0.0.1",
+    "@raindrops-on-roses/number-lttb": "0.0.1",
+    "@raindrops-on-roses/number-nice-number": "0.0.1",
+    "@raindrops-on-roses/number-numbers-from-seed": "0.0.1"
   }
 }

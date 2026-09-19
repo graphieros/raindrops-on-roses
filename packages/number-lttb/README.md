@@ -1,17 +1,17 @@
-# @aleclloydprobert/number-lttb
+# @raindrops-on-roses/number-lttb
 
 `lttb` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
 
 ## Install
 
 ```sh
-npm install @aleclloydprobert/number-lttb
+npm install @raindrops-on-roses/number-lttb
 ```
 
 ## Usage
 
 ```ts
-import { lttb } from "@aleclloydprobert/number-lttb";
+import { lttb } from "@raindrops-on-roses/number-lttb";
 ```
 
 ## With the complete library

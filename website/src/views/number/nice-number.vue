@@ -41,8 +41,8 @@ const code = `function niceNumber(range: number, round = false): number {
 
 const imports = [
   'raindrops-on-roses',
-  '@aleclloydprobert/number',
-  '@aleclloydprobert/number-nice-number',
+  '@raindrops-on-roses/number',
+  '@raindrops-on-roses/number-nice-number',
 ]
 
 const example = `niceNumber(37) // 50

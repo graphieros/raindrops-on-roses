@@ -3,8 +3,8 @@ import BaseCode from '@/components/base/BaseCode.vue'
 import { ref, computed } from 'vue'
 
 const exampleFull = `import { niceNumber } from "raindrops-on-roses"`
-const exampleCategory = `import { niceNumber } from "@aleclloydprobert/number"`
-const exampleUnit = `import { niceNumber } from "@aleclloydprobert/number-nice-number"`
+const exampleCategory = `import { niceNumber } from "@raindrops-on-roses/number"`
+const exampleUnit = `import { niceNumber } from "@raindrops-on-roses/number-nice-number"`
 </script>
 
 <template>
@@ -32,11 +32,11 @@ const exampleUnit = `import { niceNumber } from "@aleclloydprobert/number-nice-n
       <BaseCode :code="exampleFull" class="mt-2" />
 
       <h3 class="mt-6 mb-2">...or import a specific category...</h3>
-      <BaseCode code="npm i @aleclloydprobert/number" language="bash" />
+      <BaseCode code="npm i @raindrops-on-roses/number" language="bash" />
       <BaseCode :code="exampleCategory" class="mt-2" />
 
       <h3 class="mt-6 mb-2">...or import a specific utility.</h3>
-      <BaseCode code="npm i @aleclloydprobert/number-nice-number" language="bash" />
+      <BaseCode code="npm i @raindrops-on-roses/number-nice-number" language="bash" />
       <BaseCode :code="exampleUnit" class="mt-2" />
     </div>
   </div>

@@ -1,4 +1,4 @@
-# @aleclloydprobert/clamp
+# @raindrops-on-roses/clamp
 
 `clamp` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
 
@@ -7,13 +7,13 @@ Constrains a numeric value between a minimum and maximum bound.
 ## Install
 
 ```sh
-npm install @aleclloydprobert/clamp
+npm install @raindrops-on-roses/clamp
 ```
 
 ## Usage
 
 ```ts
-import { clamp } from "@aleclloydprobert/clamp";
+import { clamp } from "@raindrops-on-roses/clamp";
 
 clamp(5, 0, 10); // 5
 clamp(-5, 0, 10); // 0

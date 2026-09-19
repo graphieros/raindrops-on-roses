@@ -10,7 +10,11 @@ const code = `function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }`
 
-const imports = ['raindrops-on-roses', '@aleclloydprobert/number', '@aleclloydprobert/number-clamp']
+const imports = [
+  'raindrops-on-roses',
+  '@raindrops-on-roses/number',
+  '@raindrops-on-roses/number-clamp',
+]
 
 const example = `clamp(-5, 0, 10) // 0
 clamp(15, 0, 10) // 10

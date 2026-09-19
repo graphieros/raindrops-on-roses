@@ -1,5 +1,5 @@
 export default {
-  scope: "@aleclloydprobert",
+  scope: "@raindrops-on-roses",
 
   modulesDirectory: "modules",
   packagesDirectory: "packages",

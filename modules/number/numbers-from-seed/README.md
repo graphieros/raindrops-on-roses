@@ -1,4 +1,4 @@
-# @aleclloydprobert/numbers-from-seed
+# @raindrops-on-roses/numbers-from-seed
 
 `numbersFromSeed` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
 
@@ -7,13 +7,13 @@ Generates a deterministic array of pseudo-random numbers from a seed. Using the 
 ## Install
 
 ```sh
-npm install @aleclloydprobert/numbers-from-seed
+npm install @raindrops-on-roses/numbers-from-seed
 ```
 
 ## Usage
 
 ```ts
-import { numbersFromSeed } from "@aleclloydprobert/numbers-from-seed";
+import { numbersFromSeed } from "@raindrops-on-roses/numbers-from-seed";
 
 numbersFromSeed({
   count: 5,

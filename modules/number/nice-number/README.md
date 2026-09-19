@@ -1,4 +1,4 @@
-# @aleclloydprobert/nice-number
+# @raindrops-on-roses/nice-number
 
 `niceNumber` utility from [raindrops-on-roses](https://www.npmjs.com/package/raindrops-on-roses).
 
@@ -7,13 +7,13 @@ Returns a human-friendly number based on the `1`, `2`, `5`, `10` progression, sc
 ## Install
 
 ```sh
-npm install @aleclloydprobert/nice-number
+npm install @raindrops-on-roses/nice-number
 ```
 
 ## Usage
 
 ```ts
-import { niceNumber } from "@aleclloydprobert/nice-number";
+import { niceNumber } from "@raindrops-on-roses/nice-number";
 
 niceNumber(37); // 50
 niceNumber(23, true); // 20

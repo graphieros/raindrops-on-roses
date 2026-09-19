@@ -47,7 +47,11 @@ const code = `function lttb({
   return sampled;
 }`
 
-const imports = ['raindrops-on-roses', '@aleclloydprobert/number', '@aleclloydprobert/number-lttb']
+const imports = [
+  'raindrops-on-roses',
+  '@raindrops-on-roses/number',
+  '@raindrops-on-roses/number-lttb',
+]
 
 const example = `
 const data = [5, 1, 2, 4, 6, 9]
