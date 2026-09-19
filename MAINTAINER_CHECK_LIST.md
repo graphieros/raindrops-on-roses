@@ -273,8 +273,8 @@ If it prints, for example:
 create that exact tag:
 
 ```bash
-git tag v0.0.6
-git push origin v0.0.6
+git tag -a v0.0.9 -m "v0.0.9"
+git push origin v0.0.9
 ```
 
 The tag triggers the publish workflow.
