@@ -21,7 +21,11 @@ const store = useMainStore()
           tested and made with love.
         </p>
 
-        <BaseCode class="w-fit mt-8" :code="`npm i raindrops-on-roses`" language="bash" />
+        <div
+          class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:justify-start"
+        >
+          <BaseCode class="w-fit" :code="`npm i raindrops-on-roses`" language="bash" />
+        </div>
 
         <div
           class="mt-3 flex flex-col items-center justify-center gap-3 sm:flex-row md:justify-start"
