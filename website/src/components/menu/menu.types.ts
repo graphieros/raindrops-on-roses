@@ -3,4 +3,6 @@ export type MenuItem = {
   to?: string
   children?: MenuItem[]
   color?: string
+  description?: string
+  keywords?: string[]
 }
