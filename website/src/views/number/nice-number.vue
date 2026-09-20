@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import BaseDoc from '@/components/base/BaseDoc.vue'
+import BaseRepl from '@/components/base/BaseRepl.vue'
+import { ref } from 'vue'
 
 const lore =
   'We talk about being in our 30s, and our 40s, and our 50s. We don’t talk about being in our 37s.'
@@ -48,8 +50,27 @@ const imports = [
 const example = `niceNumber(37) // 50
 niceNumber(23, true) // 20
 `
+
+const repl = ref(`import { niceNumber } from '@raindrops-on-roses/number-nice-number'
+
+const series = [0.12, 0.56, 3, 33, 333, 3333]
+
+series.forEach(n => {
+  console.log(niceNumber(n))
+})
+
+`)
 </script>
 
 <template>
-  <BaseDoc name="niceNumber" :lore :description :code :imports :example></BaseDoc>
+  <BaseDoc name="niceNumber" :lore :description :code :imports :example>
+    <template #repl>
+      <BaseRepl
+        v-model="repl"
+        :packages="{
+          '@raindrops-on-roses/number-nice-number': '0.0.2',
+        }"
+      />
+    </template>
+  </BaseDoc>
 </template>

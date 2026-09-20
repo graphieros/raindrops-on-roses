@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import BaseDoc from '@/components/base/BaseDoc.vue'
+import BaseRepl from '@/components/base/BaseRepl.vue'
+import { ref } from 'vue'
 
 const lore =
   'Lore: All the flowers of all the tomorrows are in the seeds of today. (Native american proverb)'
@@ -69,8 +71,29 @@ numbersFromSeed({
   multiplicator: 100,
 }) // [66, 39, 16, 8, 7]
 `
+
+const repl = ref(`import { numbersFromSeed } from '@raindrops-on-roses/number-numbers-from-seed'
+
+const result = numbersFromSeed({
+  count: 5,
+  seed: 123,
+  trend: "up",
+  multiplicator: 100,
+})
+
+console.log(result)
+`)
 </script>
 
 <template>
-  <BaseDoc name="numbersFromSeed" :lore :description :code :imports :example></BaseDoc>
+  <BaseDoc name="numbersFromSeed" :lore :description :code :imports :example>
+    <template #repl>
+      <BaseRepl
+        v-model="repl"
+        :packages="{
+          '@raindrops-on-roses/number-numbers-from-seed': '0.0.2',
+        }"
+      />
+    </template>
+  </BaseDoc>
 </template>

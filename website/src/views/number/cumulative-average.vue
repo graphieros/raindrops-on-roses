@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import BaseDoc from '@/components/base/BaseDoc.vue'
+import BaseRepl from '@/components/base/BaseRepl.vue'
+import { ref } from 'vue'
 
 const lore = 'Every new experience changes ever so slightly the average that came before.'
 
@@ -52,8 +54,26 @@ cumulativeAverage({
     config: { keepInvalid: true, convertInvalidToZero: true },
 }) // [1, 0.5, 1.3333333333333333]
 `
+
+const repl = ref(`import { cumulativeAverage } from '@raindrops-on-roses/number-cumulative-average'
+
+const result = cumulativeAverage({
+    values: [1, null, 3],
+    config: { keepInvalid: true, convertInvalidToZero: true },
+})
+
+console.log(result)
+`)
 </script>
 
 <template>
-  <BaseDoc name="cumulativeAverage" :lore :description :code :imports :example></BaseDoc>
+  <BaseDoc name="cumulativeAverage" :lore :description :code :imports :example>
+    <template #repl>
+      <BaseRepl
+        v-model="repl"
+        :packages="{
+          '@raindrops-on-roses/number-cumulative-average': '0.0.3',
+        }"
+      /> </template
+  ></BaseDoc>
 </template>

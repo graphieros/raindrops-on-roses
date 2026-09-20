@@ -88,6 +88,9 @@ const npmInstalls = computed(() => props.imports.map((imp) => `npm i ${imp}`))
 
       Implementation:
       <BaseCode :code />
+
+      <span v-if="$slots.repl">Try it out:</span>
+      <slot name="repl" />
     </div>
   </div>
 </template>

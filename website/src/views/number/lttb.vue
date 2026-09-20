@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import BaseDoc from '@/components/base/BaseDoc.vue'
+import BaseRepl from '@/components/base/BaseRepl.vue'
+import { ref } from 'vue'
 
 const lore =
   'A point appears. A second point as a mirror sends a distance. Their love makes a triangle.'
@@ -61,8 +63,29 @@ lttb({
   threshold: 4,
 }) // [5, 4, 9, 9]
 `
+
+const repl = ref(`import { lttb } from '@raindrops-on-roses/number-lttb'
+
+const data = [5, 1, 2, 4, 6, 9]
+
+const result = lttb({
+  data,
+  threshold: 4,
+})
+
+console.log(result)
+`)
 </script>
 
 <template>
-  <BaseDoc name="lttb" :lore :description :code :imports :example></BaseDoc>
+  <BaseDoc name="lttb" :lore :description :code :imports :example>
+    <template #repl>
+      <BaseRepl
+        v-model="repl"
+        :packages="{
+          '@raindrops-on-roses/number-lttb': '0.0.3',
+        }"
+      />
+    </template>
+  </BaseDoc>
 </template>
