@@ -25,7 +25,7 @@ export const menuItems: MenuItem[] = [
         keywords: ['min', 'max', 'minimum', 'maximum'],
       },
       {
-        label: 'cumulative-average',
+        label: 'cumulativeAverage',
         to: '/number/cumulative-average',
         keywords: ['average', 'cumulative'],
       },
