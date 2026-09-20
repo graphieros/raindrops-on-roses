@@ -32,6 +32,11 @@ const router = createRouter({
       component: () => import('../views/number/clamp.vue'),
     },
     {
+      path: '/number/cumulative-average',
+      name: 'number-cumulative-average',
+      component: () => import('../views/number/cumulative-average.vue'),
+    },
+    {
       path: '/number/lttb',
       name: 'number-lttb',
       component: () => import('../views/number/lttb.vue'),
