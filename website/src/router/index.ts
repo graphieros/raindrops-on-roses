@@ -19,6 +19,13 @@ const router = createRouter({
       name: 'installation',
       component: () => import('../views/Installation.vue'),
     },
+
+    // NUMBER
+    {
+      path: '/number',
+      name: 'number',
+      component: () => import('../views/number/index.vue'),
+    },
     {
       path: '/number/clamp',
       name: 'number-clamp',
