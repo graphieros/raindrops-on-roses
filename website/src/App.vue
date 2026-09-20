@@ -1,15 +1,13 @@
-```vue
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import logo from './assets/images/small_raindrops_on_roses.png'
-
 import { useThemeStore } from './stores/theme'
 import BaseContainer from './components/base/BaseContainer.vue'
 import BaseHeader from './components/base/BaseHeader.vue'
 import Menu from './components/menu/Menu.vue'
-import BaseCode from './components/base/BaseCode.vue'
 import { useMainStore } from './stores/main.ts'
+import BaseCrumbs from './components/base/BaseCrumbs.vue'
 
 const themeStore = useThemeStore()
 const mainStore = useMainStore()
@@ -47,6 +45,7 @@ onBeforeUnmount(() => {
 
     <main class="min-w-0 pt-14 md:ml-72">
       <BaseContainer>
+        <BaseCrumbs />
         <RouterView />
       </BaseContainer>
     </main>

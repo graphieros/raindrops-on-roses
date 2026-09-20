@@ -44,22 +44,24 @@ const npmInstalls = computed(() => props.imports.map((imp) => `npm i ${imp}`))
 
 <template>
   <div>
-    <h1 class="mb-6 text-2xl text-function md:text-4xl">
-      <code>{{ name }}</code>
-    </h1>
+    <div class="border-b border-app-border pb-6">
+      <h1 class="mb-6 text-2xl text-function md:text-4xl">
+        <code>{{ name }}</code>
+      </h1>
 
-    <p v-if="description" class="my-2 text-xl text-app-text-muted">
-      {{ description }}
-    </p>
+      <p v-if="description" class="my-2 text-xl text-app-text-muted">
+        {{ description }}
+      </p>
 
-    <div v-if="keywords.length" class="flex flex-wrap gap-2 mb-2">
-      <BaseTag v-for="keyword in keywords" :key="keyword" :content="keyword" />
+      <div v-if="keywords.length" class="flex flex-wrap gap-2 mb-2">
+        <BaseTag v-for="keyword in keywords" :key="keyword" :content="keyword" />
+      </div>
+
+      <p v-if="lore" class="max-w-180 text-app-text-muted">
+        Lore:
+        <i class="text-function">{{ lore }}</i>
+      </p>
     </div>
-
-    <p v-if="lore" class="max-w-180 text-app-text-muted">
-      Lore:
-      <i class="text-function">{{ lore }}</i>
-    </p>
 
     <div class="my-6 flex flex-col gap-6">
       Installation options (full package, full category, or just the one utility):
