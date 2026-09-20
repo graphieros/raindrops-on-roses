@@ -62,7 +62,7 @@ const npmInstalls = computed(() => props.imports.map((imp) => `npm i ${imp}`))
     </p>
 
     <div class="my-6 flex flex-col gap-6">
-      Installation:
+      Installation options (full package, full category, or just the one utility):
 
       <div class="flex flex-row flex-wrap gap-6">
         <BaseCode
