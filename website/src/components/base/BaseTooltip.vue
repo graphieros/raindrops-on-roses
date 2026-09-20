@@ -5,6 +5,7 @@ const { position = 'top', wide = false } = defineProps<{
   label: string
   position?: 'top' | 'bottom'
   wide?: boolean
+  classes?: string[]
 }>()
 
 const positionClasses = computed<string>(() => {
@@ -32,7 +33,7 @@ const widthClasses = computed<string>(() => {
       v-if="label"
       role="tooltip"
       class="absolute left-1/2 z-20 -translate-x-1/2 pointer-events-none rounded-2 border border-solid border-app-border bg-rose-dark px-2 py-1 text-xs font-medium text-ui-text opacity-0 transition-opacity duration-150 group-hover/tooltip:opacity-100 group-focus-within/tooltip:opacity-100"
-      :class="[positionClasses, widthClasses]"
+      :class="[positionClasses, widthClasses, classes]"
     >
       {{ label }}
     </span>

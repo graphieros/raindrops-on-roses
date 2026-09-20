@@ -54,12 +54,13 @@ const store = useMainStore()
         v-for="contributor in store.contributors"
         :key="contributor.id"
         :label="contributor.login"
+        :classes="['text-white']"
       >
         <div class="flex flex-col">
           <a :href="contributor.html_url" target="_blank" class="w-12 h-12">
             <img :src="contributor.avatar_url" />
           </a>
-          <div class="w-full bg-background-muted text-xs text-white text-center">
+          <div class="w-full bg-background-muted text-xs text-center">
             {{ contributor.contributions }}
           </div>
         </div>
