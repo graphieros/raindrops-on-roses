@@ -21,6 +21,12 @@ const crumbs = computed<Crumb[]>(() => {
     }
   })
 })
+
+function toCamelCase(value: string) {
+  return value.replace(/-([a-zA-Z0-9])/g, (_, char: string) => {
+    return char.toUpperCase()
+  })
+}
 </script>
 
 <template>
@@ -61,7 +67,7 @@ const crumbs = computed<Crumb[]>(() => {
           </RouterLink>
 
           <span v-else class="font-medium text-app-text" aria-current="page">
-            {{ crumb.label }}
+            {{ toCamelCase(crumb.label) }}
           </span>
         </li>
       </template>
