@@ -59,7 +59,10 @@ const repl = ref(`import { cumulativeAverage } from '@raindrops-on-roses/number-
 
 const result = cumulativeAverage({
     values: [1, null, 3],
-    config: { keepInvalid: true, convertInvalidToZero: true },
+    config: { 
+      keepInvalid: true, 
+      convertInvalidToZero: true 
+    },
 })
 
 console.log(result)
