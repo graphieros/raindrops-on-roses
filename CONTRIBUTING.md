@@ -261,7 +261,8 @@ Do not manually version or publish packages as part of a contribution. Versionin
 2. Make your changes with clear, descriptive commits.
 3. Push your branch and open a pull request.
 4. Ensure CI checks pass: lint, type checking, tests, coverage, and build.
-5. Request review from maintainers.
+5. Update the generated README of your utility in the modules directory
+6. Request review from maintainers.
 
 ### Commit messages and PR titles
 

@@ -1,6 +1,6 @@
 {
   "name": "@raindrops-on-roses/number-cumulative-average",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "sideEffects": false,
   "files": [

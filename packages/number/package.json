@@ -1,6 +1,6 @@
 {
   "name": "@raindrops-on-roses/number",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@raindrops-on-roses/number-clamp": "0.0.2",
-    "@raindrops-on-roses/number-cumulative-average": "0.0.2",
-    "@raindrops-on-roses/number-lttb": "0.0.2",
+    "@raindrops-on-roses/number-cumulative-average": "0.0.3",
+    "@raindrops-on-roses/number-lttb": "0.0.3",
     "@raindrops-on-roses/number-nice-number": "0.0.2",
     "@raindrops-on-roses/number-numbers-from-seed": "0.0.2"
   }

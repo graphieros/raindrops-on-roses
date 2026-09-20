@@ -1,6 +1,6 @@
 {
   "name": "raindrops-on-roses",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -16,7 +16,7 @@
     "build": "vite build && tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@raindrops-on-roses/number": "0.0.5"
+    "@raindrops-on-roses/number": "0.0.6"
   },
   "publishConfig": {
     "access": "public"

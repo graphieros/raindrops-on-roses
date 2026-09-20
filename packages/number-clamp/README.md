@@ -28,9 +28,9 @@ clamp(value: number, min: number, max: number): number
 
 ### Parameters
 
-- `value` — The value to clamp.
-- `min` — The minimum value.
-- `max` — The maximum value.
+- `value` - The value to clamp.
+- `min` - The minimum value.
+- `max` - The maximum value.
 
 ### Returns
 
