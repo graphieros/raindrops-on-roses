@@ -5,8 +5,6 @@ import { useMainStore } from '@/stores/main'
 import { ref, computed } from 'vue'
 
 const store = useMainStore()
-
-// https://npmx.dev/package/raindrops-on-roses
 </script>
 
 <template>
@@ -21,8 +19,8 @@ const store = useMainStore()
       </p>
       <p>
         Contributions are welcome: you can make a pull request in the
-        <BaseLink href="https://npmx.dev/package/raindrops-on-roses">repository</BaseLink>, to share
-        beautiful functions that inspire you.
+        <BaseLink href="https://github.com/graphieros/raindrops-on-roses">repository</BaseLink>, to
+        share beautiful functions that inspire you.
       </p>
       <p>
         This library is a collection of favorite things, by humans who love programming, and wish to
@@ -32,7 +30,11 @@ const store = useMainStore()
         Anyone can contribute. It does not have to be through code. You can come and say hi in our
         Discord server, propose some ideas, and socialize.
       </p>
-      <p><span class="text-app-text">Raindrops on Roses</span> is a human-first initiative.</p>
+      <p>
+        <span class="text-app-text">Raindrops on Roses</span> is a human-first initiative. View
+        Raindrops on roses on
+        <BaseLink href="https://npmx.dev/package/raindrops-on-roses">npmx</BaseLink>.
+      </p>
     </div>
   </div>
 
