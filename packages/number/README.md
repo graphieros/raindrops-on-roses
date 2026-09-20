@@ -17,6 +17,7 @@ import { /* utilities */ } from "@raindrops-on-roses/number";
 ## Included packages
 
 - `@raindrops-on-roses/number-clamp`
+- `@raindrops-on-roses/number-cumulative-average`
 - `@raindrops-on-roses/number-lttb`
 - `@raindrops-on-roses/number-nice-number`
 - `@raindrops-on-roses/number-numbers-from-seed`

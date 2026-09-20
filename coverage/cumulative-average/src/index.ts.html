@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for numbers-from-seed/src/index.ts</title>
+    <title>Code coverage report for cumulative-average/src/index.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">numbers-from-seed/src</a> index.ts</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">cumulative-average/src</a> index.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>22/22</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -132,7 +132,16 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,98 +186,116 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">32x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">43x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * Generates a deterministic array of pseudo-random numbers from a seed.
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export type CumulativeAverageConfig = {
+  keepInvalid?: boolean;
+  convertInvalidToZero?: boolean;
+};
+&nbsp;
+export type CumulativeAverageParams&lt;T = unknown&gt; = {
+  values: T[];
+  config?: CumulativeAverageConfig;
+};
+&nbsp;
+/**
+ * Calculates the cumulative average of the provided values.
  *
  * ---
  *
- * Using the same seed and options produces the same sequence.
- * Values are generated between `0` and `multiplicator`, and can optionally
- * be rounded or sorted.
+ * Invalid values are values for which `Number.isFinite()` returns `false`.
+ * Depending on the configuration, they can be preserved, discarded, or
+ * treated as zero when calculating the average.
  *
- * @param count - Number of values to generate.
- * @param seed - Seed used to generate the deterministic sequence.
- * @param trend - Optional sorting direction for the generated values.
- * @param multiplicator - Multiplier applied to each generated value. Defaults to `1`.
- * @param rounded - Whether generated values should be rounded to integers. Defaults to `true`.
- * @returns An array of numbers
+ * @param params - The cumulative average parameters.
+ * @param params.values - The values to process.
+ * @param params.config - Options controlling how invalid values are handled.
+ * @returns An array containing the cumulative averages and, when configured,
+ * preserved invalid values.
  *
  * @example
  * ```ts
- * const numbers = numbersFromSeed({
- *   count: 5,
- *   seed: "example",
- *   trend: "up",
- *   multiplicator: 100,
- * });
+ * cumulativeAverage({
+ *     values: [1, 2, 3],
+ * }) // [1, 1.5, 2]
+ *```
  *
- * // Returns the same sequence every time for this seed and config.
- * ```
+ * @example
+ * ```ts
+ * cumulativeAverage({
+ *     values: [1, null, 3],
+ *     config: { keepInvalid: true },
+ * }) // [1, null, 2]
+ *```
  *
+ * @example
+ * ```ts
+ * cumulativeAverage({
+ *     values: [1, null, 3],
+ *     config: { keepInvalid: true, convertInvalidToZero: true },
+ * }) // [1, 0.5, 1.3333333333333333]
+ *```
  * ---
  *
- * Lore: All the flowers of all the tomorrows are in the seeds of today (Native american proverb)
+ * Lore:
+ * Every new experience changes ever so slightly the average that came before.
  */
-export function numbersFromSeed({
-  count,
-  seed,
-  trend = null,
-  multiplicator = 1,
-  rounded = true,
-}: {
-  count: number;
-  seed?: string | number;
-  trend?: "up" | "down" | null;
-  multiplicator?: number;
-  rounded?: boolean;
-}): number[] {
-  const seedString = String(seed);
-  let hash = 2166136261;
-  for (let i = 0; i &lt; seedString.length; i += 1) {
-    hash ^= seedString.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
+export function cumulativeAverage&lt;T = unknown&gt;({
+  values,
+  config = {},
+}: CumulativeAverageParams&lt;T&gt;): Array&lt;number | T&gt; {
+  const { keepInvalid = true, convertInvalidToZero = false } = config;
+&nbsp;
+  const result: Array&lt;number | T&gt; = [];
+  let sum = 0;
+  let count = 0;
+&nbsp;
+  for (const value of values) {
+    const valid = Number.isFinite(value);
+&nbsp;
+    if (!valid &amp;&amp; !keepInvalid) continue;
+&nbsp;
+    if (!valid &amp;&amp; !convertInvalidToZero) {
+      result.push(value);
+      continue;
+    }
+&nbsp;
+    sum += valid ? (value as number) : 0;
+    result.push(sum / ++count);
   }
-  let state = hash &gt;&gt;&gt; 0;
-  const random = () =&gt; {
-    state += 0x6d2b79f5;
-    let t = state;
-    t = Math.imul(t ^ (t &gt;&gt;&gt; 15), t | 1);
-    t ^= t + Math.imul(t ^ (t &gt;&gt;&gt; 7), t | 61);
-    const res = (((t ^ (t &gt;&gt;&gt; 14)) &gt;&gt;&gt; 0) / 4294967296) * multiplicator;
-    return rounded ? Math.round(res) : res;
-  };
-  const numbers = Array.from({ length: count }, random);
-  if (trend === "up") {
-    return numbers.sort((a, b) =&gt; a - b);
-  }
-  if (trend === "down") {
-    return numbers.sort((a, b) =&gt; b - a);
-  }
-  return numbers;
+&nbsp;
+  return result;
 }
 &nbsp;</pre></td></tr></table></pre>
 
