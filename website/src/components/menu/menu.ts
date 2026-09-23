@@ -22,7 +22,7 @@ export const menuItems: MenuItem[] = [
       {
         label: 'clamp',
         to: '/number/clamp',
-        keywords: ['min', 'max', 'minimum', 'maximum'],
+        keywords: ['min', 'max', 'minimum', 'maximum', 'one-liner'],
       },
       {
         label: 'cumulativeAverage',
